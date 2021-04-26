@@ -1,0 +1,13 @@
+
+g
+java:S1128"ERemove this unused import 'org.springframework.stereotype.Component'.(Ş÷Ñ¸ÿÿÿÿÿ8ÜÙÚå†/
+u
+java:S1128"SRemove this unused import 'org.springframework.beans.factory.annotation.Autowired'.(¡¸Îùÿÿÿÿ8éúèá†/
+l
+java:S1128"JRemove this unused import 'vn.elca.training.repository.ProjectRepository'.(ÿğŸıÿÿÿÿ8éúèá†/
+u
+java:S1128"SRemove this unused import 'org.springframework.beans.factory.annotation.Qualifier'.(íàÄ®ıÿÿÿÿ8Ğƒöå†/
+g
+java:S1128"ERemove this unused import 'org.springframework.data.domain.Pageable'.(‡ë‚Öıÿÿÿÿ8ş½óÃ/
+~
+java:S1192"\Define a constant instead of duplicating this literal "This is first dummy service" 9 times.(§•©øÿÿÿÿ8É¯ˆÇ†/

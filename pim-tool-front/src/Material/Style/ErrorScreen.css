@@ -1,0 +1,22 @@
+.container {
+    margin-left: auto;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+}
+
+img.error {
+    width: 20%;
+    height: 20%;
+}
+
+.text-container {
+    margin-top: auto;
+    margin-bottom: auto;
+    min-width: 300px;
+    font-size: 18pt;
+}
+
+.red-text {
+    color: red;
+}

@@ -1,0 +1,5 @@
+{
+  "DATE_FORMAT": "DD/MM/YYYY",
+  "API_URL": "http://localhost:8080",
+  "PAGE_SIZE": 5
+}

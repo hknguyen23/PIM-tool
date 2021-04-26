@@ -1,0 +1,16 @@
+
+Z
+java:S1128"8Remove this unused import 'org.modelmapper.ModelMapper'.(ó¿Ôúÿÿÿÿ8ÍÎÊì†/
+]	java:S125 "<This block of commented-out lines of code should be removed.(Óê£Êûÿÿÿÿ8Ğß‡/
+U
+java:S1128"3Remove this unused import 'javax.validation.Valid'.(æ¤ñ÷úÿÿÿÿ8øªÑß‡/
+f
+java:S1192"HDefine a constant instead of duplicating this literal "taskIds" 3 times.(™«ÃÊ8ëúˆ¹ˆ/
+a
+java:S1128	"ERemove this unused import 'org.springframework.util.CollectionUtils'.(åå…K8çãå¸ˆ/
+c
+java:S1128"GRemove this unused import 'javax.persistence.criteria.CriteriaBuilder'.(É¿F8àØÛ¸ˆ/
+o
+java:S1192Á"LDefine a constant instead of duplicating this literal "Update fail" 4 times.(€óö•úÿÿÿÿ8íâ³ˆŠ/
+d
+java:S1128"BRemove this unused import 'vn.elca.training.model.entity.Project'.(Èºõàûÿÿÿÿ8ØÖë·ˆ/

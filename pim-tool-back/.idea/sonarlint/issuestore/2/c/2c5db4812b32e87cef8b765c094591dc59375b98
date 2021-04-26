@@ -1,0 +1,17 @@
+
+N
+java:S1128
+"1Remove this unused import 'java.text.DateFormat'.(÷Œá¼8„³Ãæ‡/
+X	java:S125""<This block of commented-out lines of code should be removed.(†Ð‚8ÊÓæ‡/
+X	java:S125*"<This block of commented-out lines of code should be removed.(¢íãË8º¹Ìå‡/
+X
+java:S1854 "6Remove this useless assignment to local variable "id".(™ìåóÿÿÿÿÿ8âÙæ‡/
+I
+java:S1481 "'Remove this unused "id" local variable.(™ìåóÿÿÿÿÿ8âÙæ‡/
+R
+java:S1128"5Remove this unused import 'java.text.ParseException'.(ñ®ï•8äòÈæ‡/
+T
+java:S1128"7Remove this unused import 'java.text.SimpleDateFormat'.(ú¡ÙÛ8ýÖÃæ‡/
+R
+java:S1128"0Remove this unused import 'java.time.LocalDate'.(›‘¬èýÿÿÿÿ8Ïî‘æ‡/
+X	java:S125%"<This block of commented-out lines of code should be removed.(Ìõôø8âÙæ‡/

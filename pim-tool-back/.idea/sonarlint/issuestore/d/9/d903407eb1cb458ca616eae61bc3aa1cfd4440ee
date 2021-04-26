@@ -1,0 +1,12 @@
+
+]	java:S125)"<This block of commented-out lines of code should be removed.(¸¦ÒÇøÿÿÿÿ8¡Ğ£æˆ/
+X	java:S125"<This block of commented-out lines of code should be removed.(Ì‰¸„8ã›£æˆ/
+Q
+java:S1128"4Remove this unused import 'org.hibernate.Hibernate'.(óñ‹è8ù·İúŠ/
+R
+java:S1128"0Remove this unused import 'java.time.LocalDate'.(›‘¬èıÿÿÿÿ8—ø©¸ˆ/
+d
+java:S1128"BRemove this unused import 'vn.elca.training.model.entity.Project'.(Èºõàûÿÿÿÿ8„¹¥¸ˆ/
+x
+java:S1128
+"VRemove this unused import 'vn.elca.training.model.exception.ProjectNotFoundException'.(ßÂºáşÿÿÿÿ8ô²¦¸ˆ/

@@ -1,0 +1,14 @@
+
+f
+java:S1128"DRemove this unused import 'org.springframework.http.ResponseEntity'.(¶¯ø¦úÿÿÿÿ8ÖÓ×Ñ/
+x
+java:S1128"VRemove this unused import 'vn.elca.training.model.exception.ProjectNotFoundException'.(ßÂºáşÿÿÿÿ8–ËúÌ/
+…
+java:S1128"hRemove this unused import 'vn.elca.training.model.exception.InvalidProjectFinishingDateFormatException'.(¨ê¤ò8çŒ‰Í/
+q
+java:S1128
+"TRemove this unused import 'vn.elca.training.model.exception.GroupNotFoundException'.(õîéÙ8¸‹ïÌ/
+~
+java:S1128"\Remove this unused import 'vn.elca.training.model.exception.NullProjectPropertiesException'.(Ö•„ıÿÿÿÿ8çŒ‰Í/
+d
+java:S1128	"BRemove this unused import 'vn.elca.training.model.entity.Project'.(Èºõàûÿÿÿÿ8œµîÌ/

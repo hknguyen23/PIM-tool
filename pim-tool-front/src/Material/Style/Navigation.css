@@ -1,0 +1,19 @@
+.navigation {
+    min-height: 90px;
+    min-width: 120px;
+    border-right: 1px solid gainsboro;
+}
+
+.text-semi-bold {
+    font-size: 18pt;
+    font-weight: 600;
+    color: #2f85fa;
+}
+
+.first-element {
+    margin-top: 15px;
+}
+
+.navbar {
+    padding: 0 !important;
+}

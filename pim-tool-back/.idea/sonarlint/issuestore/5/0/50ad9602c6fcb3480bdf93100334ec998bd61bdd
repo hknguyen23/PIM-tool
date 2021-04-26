@@ -1,0 +1,19 @@
+
+…
+java:S1128"hRemove this unused import 'vn.elca.training.model.exception.InvalidProjectFinishingDateFormatException'.(¨ê¤ò8Äí¿¿/
+\
+java:S1128"?Remove this unused import 'java.time.format.DateTimeFormatter'.(‰÷÷ª8Ù±æ/
+S
+java:S1128"1Remove this unused import 'java.io.Serializable'.(èãîÂÿÿÿÿÿ8±§ÑÆ/
+]
+java:S1128"@Remove this unused import 'vn.elca.training.util.DateTimeUtils'.(æß³ë8Äí¿¿/
+f
+java:S1128"DRemove this unused import 'java.time.format.DateTimeParseException'.(¨Ä‚Éûÿÿÿÿ8Äí¿¿/
+R
+java:S1128"0Remove this unused import 'org.json.JSONObject'.(œÖ´üşÿÿÿÿ8Äí¿¿/
+:
+java:S2386"Make this member "protected".(·Íª§8®ÇŒ³ˆ/
+T
+java:S1128"8Remove this unused import 'org.apache.tomcat.jni.Local'.(å¡.8´ÄÖÈ/
+~
+java:S1128"\Remove this unused import 'vn.elca.training.model.exception.NullProjectPropertiesException'.(Ö•„ıÿÿÿÿ8Äí¿¿/
