@@ -120,13 +120,11 @@ public class ProjectController extends AbstractApplicationController {
             id = Long.parseLong(idString);
         } catch (NumberFormatException ex) {
             ex.printStackTrace();
-            List<String> errors = new ArrayList<>();
-            errors.add(ex.getMessage());
             return new RestResponseFail(
                     "Invalid id: " + idString,
                     HttpStatus.BAD_REQUEST,
                     HttpStatus.BAD_REQUEST.value(),
-                    errors
+                    ex.getMessage()
             );
         }
 
@@ -142,13 +140,11 @@ public class ProjectController extends AbstractApplicationController {
             );
         } catch (ProjectNotFoundException ex) {
             ex.printStackTrace();
-            List<String> errors = new ArrayList<>();
-            errors.add(ex.getMessage());
             return new RestResponseFail(
                     "Can't find project with id: " + id,
                     HttpStatus.BAD_REQUEST,
                     HttpStatus.BAD_REQUEST.value(),
-                    errors
+                    ex.getMessage()
             );
         }
     }
@@ -158,13 +154,11 @@ public class ProjectController extends AbstractApplicationController {
         Long projectNumber = dto.getProjectNumber();
         boolean isExistProjectNumber = projectService.checkExistProjectNumber(projectNumber);
         if (isExistProjectNumber) {
-            List<String> errors = new ArrayList<>();
-            errors.add("The project number already existed");
             return new RestResponseFail(
                     "The project number already existed. Please select a different project number",
                     HttpStatus.NOT_FOUND,
                     101,
-                    errors
+                    "The project number already existed"
             );
         }
 
@@ -174,9 +168,12 @@ public class ProjectController extends AbstractApplicationController {
             project = new Project(dto);
         } catch (InvalidProjectFinishingDateFormatException ex) {
             ex.printStackTrace();
-            List<String> errors = new ArrayList<>();
-            errors.add(ex.getMessage());
-            return new RestResponseFail("Create fail", HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), errors);
+            return new RestResponseFail(
+                    "Create fail",
+                    HttpStatus.BAD_REQUEST,
+                    HttpStatus.BAD_REQUEST.value(),
+                    ex.getMessage()
+            );
         }
 
         project.setVersion(1L);
@@ -187,9 +184,12 @@ public class ProjectController extends AbstractApplicationController {
             project.setGroupz(groupz);
         } catch (GroupNotFoundException ex) {
             ex.printStackTrace();
-            List<String> errors = new ArrayList<>();
-            errors.add(ex.getMessage());
-            return new RestResponseFail("Create fail", HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.value(), errors);
+            return new RestResponseFail(
+                    "Create fail",
+                    HttpStatus.NOT_FOUND,
+                    HttpStatus.NOT_FOUND.value(),
+                    ex.getMessage()
+            );
         }
 
         List<Long> employeeIds = dto.getEmployeeIds();
@@ -200,9 +200,7 @@ public class ProjectController extends AbstractApplicationController {
                 employees.add(employee);
             } catch (EmployeeNotFoundException ex) {
                 ex.printStackTrace();
-                List<String> errors = new ArrayList<>();
-                errors.add(ex.getMessage());
-                return new RestResponseFail("Create fail", HttpStatus.NOT_FOUND, 102, errors);
+                return new RestResponseFail("Create fail", HttpStatus.NOT_FOUND, 102, ex.getMessage());
             }
         }
 
@@ -222,9 +220,12 @@ public class ProjectController extends AbstractApplicationController {
             project = new Project(dto);
         } catch (InvalidProjectFinishingDateFormatException ex) {
             ex.printStackTrace();
-            List<String> errors = new ArrayList<>();
-            errors.add(ex.getMessage());
-            return new RestResponseFail("Update fail", HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), errors);
+            return new RestResponseFail(
+                    "Update fail",
+                    HttpStatus.BAD_REQUEST,
+                    HttpStatus.BAD_REQUEST.value(),
+                    ex.getMessage()
+            );
         }
 
         Long groupID = (Long)dto.getGroup().get("id");
@@ -233,9 +234,12 @@ public class ProjectController extends AbstractApplicationController {
             project.setGroupz(groupz);
         } catch (GroupNotFoundException ex) {
             ex.printStackTrace();
-            List<String> errors = new ArrayList<>();
-            errors.add(ex.getMessage());
-            return new RestResponseFail("Update fail", HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.value(), errors);
+            return new RestResponseFail(
+                    "Update fail",
+                    HttpStatus.NOT_FOUND,
+                    HttpStatus.NOT_FOUND.value(),
+                    ex.getMessage()
+            );
         }
 
         List<Long> employeeIds = dto.getEmployeeIds();
@@ -246,9 +250,7 @@ public class ProjectController extends AbstractApplicationController {
                 employees.add(employee);
             } catch (EmployeeNotFoundException ex) {
                 ex.printStackTrace();
-                List<String> errors = new ArrayList<>();
-                errors.add(ex.getMessage());
-                return new RestResponseFail("Update fail", HttpStatus.NOT_FOUND, 102, errors);
+                return new RestResponseFail("Update fail", HttpStatus.NOT_FOUND, 102, ex.getMessage());
             }
         }
 
@@ -263,15 +265,15 @@ public class ProjectController extends AbstractApplicationController {
             return new RestResponseSuccess(map, "Update successfully", HttpStatus.OK, HttpStatus.OK.value());
         } catch (ProjectNotFoundException ex) {
             ex.printStackTrace();
-            List<String> errors = new ArrayList<>();
-            errors.add(ex.getMessage());
-            errors.add("No project with id: " + project.getId());
-            return new RestResponseFail("Update fail", HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.value(), errors);
+            return new RestResponseFail(
+                    "Update fail",
+                    HttpStatus.NOT_FOUND,
+                    HttpStatus.NOT_FOUND.value(),
+                    "No project with id: " + project.getId()
+            );
         } catch (ProjectVersionNotMatched ex) {
             ex.printStackTrace();
-            List<String> errors = new ArrayList<>();
-            errors.add(ex.getMessage());
-            return new RestResponseFail("Update fail", HttpStatus.NOT_FOUND, 103, errors);
+            return new RestResponseFail("Update fail", HttpStatus.NOT_FOUND, 103, ex.getMessage());
         }
     }
 
@@ -287,9 +289,12 @@ public class ProjectController extends AbstractApplicationController {
             return new RestResponseSuccess(map, "Delete successfully", HttpStatus.OK, HttpStatus.OK.value());
         } catch (ProjectNotFoundException ex) {
             ex.printStackTrace();
-            List<String> errors = new ArrayList<>();
-            errors.add(ex.getMessage());
-            return new RestResponseFail("Delete fail", HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.value(), errors);
+            return new RestResponseFail(
+                    "Delete fail",
+                    HttpStatus.NOT_FOUND,
+                    HttpStatus.NOT_FOUND.value(),
+                    ex.getMessage()
+            );
         }
     }
 
@@ -297,15 +302,21 @@ public class ProjectController extends AbstractApplicationController {
     public RestResponse createMaintenanceProject(@RequestBody String requestBody) {
         JSONObject jsonObject = new JSONObject(requestBody);
         if (!jsonObject.has("id")) {
-            List<String> errors = new ArrayList<>();
-            errors.add("Missing id");
-            return new RestResponseFail("Create fail", HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), errors);
+            return new RestResponseFail(
+                    "Create fail",
+                    HttpStatus.BAD_REQUEST,
+                    HttpStatus.BAD_REQUEST.value(),
+                    "Missing id"
+            );
         } else {
             Object object = jsonObject.get("id");
             if (!(object instanceof Number)) {
-                List<String> errors = new ArrayList<>();
-                errors.add("id must be a number");
-                return new RestResponseFail("Create fail", HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), errors);
+                return new RestResponseFail(
+                        "Create fail",
+                        HttpStatus.BAD_REQUEST,
+                        HttpStatus.BAD_REQUEST.value(),
+                        "id must be a number"
+                );
             }
         }
 
@@ -328,24 +339,20 @@ public class ProjectController extends AbstractApplicationController {
                 map.put("data", projectDtos);
                 return new RestResponseSuccess(map, "Create successfully", HttpStatus.OK, HttpStatus.OK.value());
             } else {
-                List<String> errors = new ArrayList<>();
-                errors.add("Something wrong happened!!!");
                 return new RestResponseFail(
                         "Something wrong happened!!!",
                         HttpStatus.BAD_REQUEST,
                         HttpStatus.BAD_REQUEST.value(),
-                        errors
+                        "Something wrong happened!!!"
                 );
             }
         } catch (ProjectNotFoundException ex) {
             ex.printStackTrace();
-            List<String> errors = new ArrayList<>();
-            errors.add(ex.getMessage());
             return new RestResponseFail(
                     "Can't find project with id: " + id,
                     HttpStatus.BAD_REQUEST,
                     HttpStatus.BAD_REQUEST.value(),
-                    errors
+                    ex.getMessage()
             );
         }
     }

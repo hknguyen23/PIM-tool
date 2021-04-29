@@ -19,7 +19,7 @@ import moment from 'moment';
 import MomentUtils from '@date-io/moment';
 import { KeyboardDatePicker as DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import { makeStyles } from '@material-ui/core/styles';
-import { DATE_FORMAT } from '../Constants/config.json';
+import { DATE_FORMAT_FOR_FRONTEND, DATE_FORMAT_FOR_BACKEND, MIN_DATE, MAX_DATE } from '../Constants/config.json';
 import { fetchGroups } from '../Services/groupService';
 import { fetchEmployees } from '../Services/employeeService';
 import { createProject, updateProject } from '../Services/projectService';
@@ -56,10 +56,12 @@ const useStyles = makeStyles((theme) => ({
     color: '#666666'
   },
   shortInputField: {
-    width: 240
+    width: 240,
+    height: 40
   },
   longInputField: {
-    width: 710
+    width: 710,
+    height: 40
   },
   datePicker: {
     border: '1px solid #ccc',
@@ -150,7 +152,6 @@ export default function ProjectManagement({ mode }) {
         if (res.code === 200) {
           setGroups(res.data.data);
         } else {
-          history.push("/error", { errorMessage: res.message });
           setGroups([]);
         }
       })
@@ -167,7 +168,6 @@ export default function ProjectManagement({ mode }) {
         if (res.code === 200) {
           setEmployees(res.data.data);
         } else {
-          history.push("/error", { errorMessage: res.message });
           setEmployees([]);
         }
       })
@@ -197,6 +197,19 @@ export default function ProjectManagement({ mode }) {
 
   // change textfield
   const handleChangeValues = (e) => {
+    if (e.target.name === 'projectName' || e.target.name === 'customer') {
+      if (e.target.value !== null && e.target.value.length > 50) {
+        setErrors({
+          ...errors,
+          [e.target.name]: <Translate content="projectManagement.form.errors.maximumLength" />
+        })
+      } else {
+        setErrors({
+          ...errors,
+          [e.target.name]: ""
+        });
+      }
+    }
     setValues({
       ...values,
       [e.target.name]: e.target.value
@@ -229,7 +242,15 @@ export default function ProjectManagement({ mode }) {
         case 'projectNumber':
           setErrors({
             ...errors,
-            [e.target.name]: isNaN(e.target.value) ? <Translate content="projectManagement.form.errors.NaN" /> : ""
+            projectNumber: isNaN(e.target.value) ? <Translate content="projectManagement.form.errors.NaN" /> : ""
+          });
+          break;
+
+        case 'projectName':
+        case 'customer':
+          setErrors({
+            ...errors,
+            [e.target.name]: e.target.value.length > 50 ? <Translate content="projectManagement.form.errors.maximumLength" /> : ""
           });
           break;
 
@@ -261,6 +282,7 @@ export default function ProjectManagement({ mode }) {
       ...values,
       group: groupName
     });
+    console.log(groupName);
     handleCloseCreateGroupDialog();
   }
 
@@ -271,28 +293,58 @@ export default function ProjectManagement({ mode }) {
     if (values.projectNumber === '') {
       tempErrors.projectNumber = <Translate content="projectManagement.form.errors.emptyField" />;
     }
+
     if (values.projectName === '') {
       tempErrors.projectName = <Translate content="projectManagement.form.errors.emptyField" />;
     }
+
     if (values.customer === '') {
       tempErrors.customer = <Translate content="projectManagement.form.errors.emptyField" />;
     }
+
     if (values.group === null) {
       tempErrors.group = <Translate content="projectManagement.form.errors.noItemSelected" />;
     }
+
     if (values.status === null) {
       tempErrors.status = <Translate content="projectManagement.form.errors.noItemSelected" />;
     }
+
     if (values.startDate === null) {
       tempErrors.startDate = <Translate content="projectManagement.form.errors.emptyField" />;
     }
+
+    if (values.startDate !== null) {
+      const start = new Date(values.startDate);
+      const min = new Date(MIN_DATE);
+      const max = new Date(MAX_DATE);
+      if (start > max) {
+        tempErrors.startDate = <Translate content="projectManagement.form.errors.maximalDate" />;
+      }
+
+      if (start < min) {
+        tempErrors.startDate = <Translate content="projectManagement.form.errors.minimalDate" />;
+      }
+    }
+
     if (values.endDate !== null) {
       const start = new Date(values.startDate);
       const end = new Date(values.endDate);
       if (start >= end) {
         tempErrors.endDate = <Translate content="projectManagement.form.errors.endDateIsEqualOrLessThanStartDate" />;
       }
+
+      const min = new Date(MIN_DATE);
+      const max = new Date(MAX_DATE);
+      if (end > max) {
+        tempErrors.endDate = <Translate content="projectManagement.form.errors.maximalDate" />;
+      }
+
+      if (end < min) {
+        tempErrors.endDate = <Translate content="projectManagement.form.errors.minimalDate" />;
+      }
     }
+
     setErrors(tempErrors);
 
     var errorList = Object.entries(tempErrors);
@@ -311,8 +363,8 @@ export default function ProjectManagement({ mode }) {
         status: values.status.value,
         group: values.group,
         employeeIds: values.members.map(member => member.id),
-        startDate: values.startDate,
-        endDate: values.endDate
+        startDate: moment(values.startDate).format(DATE_FORMAT_FOR_BACKEND),
+        endDate: values.endDate === null ? null : moment(values.endDate).format(DATE_FORMAT_FOR_BACKEND),
       }
       console.log(data);
 
@@ -337,6 +389,7 @@ export default function ProjectManagement({ mode }) {
             }
           })
           .catch(error => {
+            history.push("/error", { errorMessage: error });
             console.log(error);
           });
       } else if (mode === "update") {
@@ -356,6 +409,7 @@ export default function ProjectManagement({ mode }) {
             }
           })
           .catch(error => {
+            history.push("/error", { errorMessage: error });
             console.log(error);
           });
       }
@@ -363,7 +417,7 @@ export default function ProjectManagement({ mode }) {
       await delay(3000);
       setOpenProcessWaitingDialog(false);
       setOpenSnackbar(true);
-      await delay(3000);
+      await delay(2000);
 
       if (!isError) {
         history.push("/");
@@ -401,6 +455,7 @@ export default function ProjectManagement({ mode }) {
               className={classes.shortInputField}
               value={values.projectNumber}
               disabled={mode === "update"}
+              autoFocus={mode === "new"}
               id="project-number"
               name='projectNumber'
               variant="outlined"
@@ -410,6 +465,7 @@ export default function ProjectManagement({ mode }) {
               required
               onChange={handleChangeValues}
               onBlur={handleValidate}
+              style={{ backgroundColor: mode === "update" ? '#ccc' : '' }}
             />
           </div>
 
@@ -422,6 +478,7 @@ export default function ProjectManagement({ mode }) {
             <TextField
               className={classes.longInputField}
               value={values.projectName}
+              autoFocus={mode === "update"}
               id="project-name"
               name='projectName'
               variant="outlined"
@@ -431,7 +488,6 @@ export default function ProjectManagement({ mode }) {
               required
               onChange={handleChangeValues}
               onBlur={handleValidate}
-              inputProps={{ maxLength: 50 }}
             />
           </div>
 
@@ -512,6 +568,9 @@ export default function ProjectManagement({ mode }) {
                 }
                 return option.name;
               }}
+              getOptionSelected={(option, value) => {
+                return option.id === value.id;
+              }}
               selectOnFocus
               clearOnBlur
               renderOption={(option) => option.name}
@@ -582,6 +641,9 @@ export default function ProjectManagement({ mode }) {
               })}
               options={projectStatuses}
               getOptionLabel={(option) => option.title}
+              getOptionSelected={(option, value) => {
+                return option.value === value.value;
+              }}
               renderInput={(params) =>
                 <TextField
                   {...params}
@@ -621,7 +683,7 @@ export default function ProjectManagement({ mode }) {
                       startDate: null
                     });
                   } else {
-                    const isValid = moment(date, DATE_FORMAT, true).isValid();
+                    const isValid = moment(date, DATE_FORMAT_FOR_FRONTEND, true).isValid();
                     if (isValid) {
                       setValues({
                         ...values,
@@ -643,10 +705,14 @@ export default function ProjectManagement({ mode }) {
                     }
                   }
                 }}
-                format={DATE_FORMAT}
+                format={DATE_FORMAT_FOR_FRONTEND}
                 animateYearScrolling
                 invalidDateMessage=""
                 style={{ border: errors.startDate !== '' ? '1px solid red' : '' }}
+                minDate={MIN_DATE}
+                maxDate={MAX_DATE}
+                minDateMessage=""
+                maxDateMessage=""
               />
             </MuiPickersUtilsProvider>
 
@@ -664,7 +730,7 @@ export default function ProjectManagement({ mode }) {
                 variant='outlined'
                 onChange={(date) => {
                   if (date !== null) {
-                    const isValid = moment(date, DATE_FORMAT, true).isValid();
+                    const isValid = moment(date, DATE_FORMAT_FOR_FRONTEND, true).isValid();
                     if (isValid) {
                       setValues({
                         ...values,
@@ -695,10 +761,14 @@ export default function ProjectManagement({ mode }) {
                     });
                   }
                 }}
-                format={DATE_FORMAT}
+                format={DATE_FORMAT_FOR_FRONTEND}
                 animateYearScrolling
                 invalidDateMessage=""
                 style={{ border: errors.endDate !== '' ? '1px solid red' : '' }}
+                minDate={MIN_DATE}
+                maxDate={MAX_DATE}
+                minDateMessage=""
+                maxDateMessage=""
               />
             </MuiPickersUtilsProvider>
           </div>

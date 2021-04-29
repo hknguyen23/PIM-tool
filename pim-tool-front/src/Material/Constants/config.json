@@ -1,5 +1,8 @@
 {
-  "DATE_FORMAT": "DD/MM/YYYY",
+  "DATE_FORMAT_FOR_FRONTEND": "DD/MM/YYYY",
+  "DATE_FORMAT_FOR_BACKEND": "YYYY-MM-DD",
+  "MIN_DATE": "01/01/1900",
+  "MAX_DATE": "01/01/2100",
   "API_URL": "http://localhost:8080",
   "PAGE_SIZE": 5
 }

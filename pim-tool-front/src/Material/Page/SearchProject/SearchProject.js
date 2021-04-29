@@ -9,16 +9,23 @@ import {
   TextField,
   Toolbar,
   Button,
-  IconButton
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Snackbar,
 } from '@material-ui/core';
+import Alert from '@material-ui/lab/Alert';
 import { Autocomplete } from '@material-ui/lab';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import CustomCheckbox from './CustomCheckbox';
 import CustomNoRowsOverlay from './CustomNoRowsOverlay';
 import CustomLoadingOverlay from './CustomLoadingOverlay';
 import CustomFooter from './CustomFooter';
-import { DATE_FORMAT, PAGE_SIZE } from '../../Constants/config.json';
+import { DATE_FORMAT_FOR_FRONTEND, PAGE_SIZE } from '../../Constants/config.json';
 import { getProjects, deleteProject } from '../../Services/projectService';
+import codeAndMessage from '../../Constants/codeAndMessage';
 
 const projectStatuses = [
   { value: 'NEW', title: 'New' },
@@ -62,8 +69,7 @@ const useStyles = makeStyles((theme) => ({
       textAlign: 'right',
     },
     '& .MuiDataGrid-columnsContainer, .MuiDataGrid-cell': {
-      borderBottom: `1px solid ${theme.palette.type === 'light' ? '#f0f0f0' : '#303030'
-        }`,
+      borderBottom: `1px solid ${theme.palette.type === 'light' ? '#f0f0f0' : '#303030'}`,
     },
     '& .MuiDataGrid-cell': {
       color:
@@ -103,7 +109,7 @@ const useStyles = makeStyles((theme) => ({
     height: '40px'
   },
   deleteIcon: {
-    color: 'red'
+    color: 'red',
   },
 }));
 
@@ -125,6 +131,11 @@ export default function SearchProject() {
     title: FILTER_TITLE
   });
   const [searchFieldValue, setSearchFieldValue] = useState(SEARCH_VALUE);
+  const [openConfirmDeleteProjectDialog, setOpenConfirmDeleteProjectDialog] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [isSuccessRequest, setIsSuccessRequest] = useState(false);
+  const [code, setCode] = useState(0);
+  const [isReset, setIsReset] = useState(false);
 
   const columns = [
     {
@@ -144,7 +155,12 @@ export default function SearchProject() {
         </Link>
       }
     },
-    { field: 'projectName', headerName: <Translate content="searchProject.table.nameColumn" />, width: 320, sortable: false },
+    {
+      field: 'projectName',
+      headerName: <Translate content="searchProject.table.nameColumn" />,
+      flex: 1,
+      sortable: false,
+    },
     {
       field: 'status',
       headerName: <Translate content="searchProject.table.statusColumn" />,
@@ -154,7 +170,12 @@ export default function SearchProject() {
         return params.getValue('status').title;
       }
     },
-    { field: 'customer', headerName: <Translate content="searchProject.table.customerColumn" />, width: 200, sortable: false },
+    {
+      field: 'customer',
+      headerName: <Translate content="searchProject.table.customerColumn" />,
+      width: 200,
+      sortable: false
+    },
     {
       field: 'startDate',
       headerName: <Translate content="searchProject.table.startDateColumn" />,
@@ -164,13 +185,13 @@ export default function SearchProject() {
       align: 'center',
       sortable: false,
       valueFormatter: (params) => {
-        return moment(params.getValue('startDate')).format(DATE_FORMAT);
+        return moment(params.getValue('startDate')).format(DATE_FORMAT_FOR_FRONTEND);
       }
     },
     {
       field: 'delete',
       headerName: <Translate content="searchProject.table.deleteColumn" />,
-      flex: 1,
+      width: 120,
       sortable: false,
       headerAlign: 'center',
       align: 'center',
@@ -190,46 +211,13 @@ export default function SearchProject() {
         //   return alert(JSON.stringify(thisRow, null, 2));
         // }
 
-        const handleDelete = () => {
-          deleteProject([params.row.id])
-            .then(res => {
-              console.log(res);
-              const data = {
-                currentPage,
-                pageSize,
-                status: filter.value,
-                searchValue: searchFieldValue
-              }
-              getProjects(data)
-                .then(res => {
-                  console.log(res);
-                  setIsLoading(true);
-                  if (res.code === 200) {
-                    if (res.data.currentPage === res.data.totalPages) {
-                      setCurrentPage(res.data.currentPage - 1);
-                    } else {
-                      setCurrentPage(res.data.currentPage);
-                    }
-                    setPageCount(res.data.totalPages);
-                    setProjects(res.data.data);
-                    setIsLoading(false);
-                    setRowsSelected([]);
-                  } else {
-                    history.push("/error", { errorMessage: res.message });
-                    setProjects([]);
-                  }
-                })
-                .catch(error => {
-                  console.log(error);
-                });
-            })
-            .catch(error => {
-              console.log(error);
-            });
-        }
-
         return params.row.status.value === 'NEW'
-          ? <IconButton onClick={handleDelete}><DeleteForeverIcon className={classes.deleteIcon} /></IconButton>
+          ? <IconButton style={{ flex: 1 }} onClick={() => {
+            localStorage.setItem('deleteID', params.row.id);
+            setOpenConfirmDeleteProjectDialog(true);
+          }}>
+            <DeleteForeverIcon className={classes.deleteIcon} />
+          </IconButton>
           : <React.Fragment></React.Fragment>;
       }
     }
@@ -253,17 +241,20 @@ export default function SearchProject() {
       .then(res => {
         console.log(res);
         if (res.code === 200) {
-          setCurrentPage(res.data.currentPage);
+          if (res.data.currentPage >= res.data.totalPages) {
+            setCurrentPage(res.data.totalPages - 1);
+          } else setCurrentPage(res.data.currentPage);
           setPageCount(res.data.totalPages);
           setProjects(res.data.data);
           setIsLoading(false);
           setRowsSelected([]);
         } else {
-          history.push("/error", { errorMessage: res.message });
+          setIsLoading(true);
           setProjects([]);
         }
       })
       .catch(error => {
+        history.push("/error", { errorMessage: error });
         console.log(error);
       });
   }, [currentPage, pageSize]);
@@ -279,29 +270,33 @@ export default function SearchProject() {
       .then(res => {
         console.log(res);
         if (res.code === 200) {
-          setCurrentPage(res.data.currentPage);
+          if (res.data.currentPage >= res.data.totalPages) {
+            setCurrentPage(res.data.totalPages - 1);
+          } else setCurrentPage(res.data.currentPage);
           setPageCount(res.data.totalPages);
           setProjects(res.data.data);
           setIsLoading(false);
           setRowsSelected([]);
         } else {
-          history.push("/error", { errorMessage: res.message });
           setProjects([]);
         }
       })
       .catch(error => {
+        history.push("/error", { errorMessage: error });
         console.log(error);
       });
   }
 
   const handleReset = () => {
     setSearchFieldValue('');
+    setRowsSelected([]);
+    setIsReset(true);
     setFilter({
       value: '',
       title: ''
     });
     const data = {
-      currentPage,
+      currentPage: 0,
       pageSize,
       status: '',
       searchValue: ''
@@ -309,20 +304,76 @@ export default function SearchProject() {
     getProjects(data)
       .then(res => {
         console.log(res);
+        setIsReset(false);
         if (res.code === 200) {
           setCurrentPage(res.data.currentPage);
           setPageCount(res.data.totalPages);
           setProjects(res.data.data);
           setIsLoading(false);
-          setRowsSelected([]);
         } else {
-          history.push("/error", { errorMessage: res.message });
           setProjects([]);
         }
       })
       .catch(error => {
+        history.push("/error", { errorMessage: error });
         console.log(error);
       });
+  }
+
+  const handleDeleteProject = () => {
+    const deleteID = localStorage.getItem('deleteID');
+    localStorage.removeItem('deleteID');
+    deleteProject([deleteID])
+      .then(res1 => {
+        console.log(res1);
+        const data = {
+          currentPage,
+          pageSize,
+          status: filter.value,
+          searchValue: searchFieldValue
+        }
+        if (res1.code === 200) {
+          getProjects(data)
+            .then(res2 => {
+              console.log(res2);
+              setCode(res2.code);
+              if (res2.code === 200) {
+                if (res2.data.currentPage >= res2.data.totalPages) {
+                  setCurrentPage(res2.data.totalPages - 1);
+                } else {
+                  setCurrentPage(res2.data.currentPage);
+                }
+                setPageCount(res2.data.totalPages);
+                setProjects(res2.data.data);
+                setIsLoading(false);
+                setRowsSelected([]);
+                setIsSuccessRequest(true);
+                setOpenSnackbar(true);
+              } else {
+                setIsLoading(true);
+                setIsSuccessRequest(false);
+                setProjects([]);
+              }
+            })
+            .catch(error => {
+              history.push("/error", { errorMessage: error });
+              console.log(error);
+            });
+        } else {
+          setCode(res1.code);
+          setIsLoading(true);
+          setIsSuccessRequest(false);
+          setOpenSnackbar(true);
+          setProjects([]);
+          setCurrentPage(0);
+        }
+      })
+      .catch(error => {
+        history.push("/error", { errorMessage: error });
+        console.log(error);
+      });
+
+    setOpenConfirmDeleteProjectDialog(false);
   }
 
   return (
@@ -338,6 +389,7 @@ export default function SearchProject() {
           <TextField
             value={searchFieldValue}
             className={classes.textField}
+            autoFocus
             id="projectSearch"
             size='small'
             label={<Translate content="searchProject.searchFieldLabel" />}
@@ -353,6 +405,9 @@ export default function SearchProject() {
             size='small'
             options={projectStatuses}
             getOptionLabel={(option) => option.title}
+            getOptionSelected={(option, value) => {
+              return option.value === value.value || value.value === '';
+            }}
             style={{ width: 400 }}
             onChange={(event, newValue) => {
               setFilter(newValue === null
@@ -369,7 +424,7 @@ export default function SearchProject() {
                 .then(res => {
                   console.log(res);
                   if (res.code === 200) {
-                    if (res.data.currentPage >= res.data.totalPages && res.data.currentPage !== 0) {
+                    if (res.data.currentPage >= res.data.totalPages) {
                       setCurrentPage(res.data.totalPages - 1);
                     } else {
                       setCurrentPage(res.data.currentPage);
@@ -379,11 +434,11 @@ export default function SearchProject() {
                     setIsLoading(false);
                     setRowsSelected([]);
                   } else {
-                    history.push("/error", { errorMessage: res.message });
                     setProjects([]);
                   }
                 })
                 .catch(error => {
+                  history.push("/error", { errorMessage: error });
                   console.log(error);
                 });
             }}
@@ -433,6 +488,11 @@ export default function SearchProject() {
           checkboxSelection
           rowHeight={32}
           headerHeight={32}
+          onStateChange={(params) => {
+            if (isReset) {
+              params.state.selection = {};
+            }
+          }}
           density='comfortable'
           onSelectionModelChange={(params) => {
             let temp = [];
@@ -443,6 +503,41 @@ export default function SearchProject() {
           }}
         />
       </div>
+
+      <Dialog
+        maxWidth="xs"
+        aria-labelledby="confirmation-dialog-title"
+        open={openConfirmDeleteProjectDialog}
+      >
+        <DialogTitle id="confirmation-dialog-title">
+          <Translate content="searchProject.deleteConfirmDialog.title" />
+        </DialogTitle>
+        <DialogContent dividers>
+          <Translate content="searchProject.deleteConfirmDialog.content" />
+        </DialogContent>
+        <DialogActions>
+          <Button autoFocus onClick={() => setOpenConfirmDeleteProjectDialog(false)} color="primary">
+            <Translate content="searchProject.deleteConfirmDialog.cancelButton" />
+          </Button>
+          <Button onClick={handleDeleteProject} style={{ color: 'red' }}>
+            <Translate content="searchProject.deleteConfirmDialog.deleteButton" />
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        open={openSnackbar}
+        onClose={() => setOpenSnackbar(false)}
+      >
+        <Alert
+          severity={isSuccessRequest ? "success" : "error"}
+          color={isSuccessRequest ? "success" : "error"}
+          variant="filled"
+        >
+          {codeAndMessage.get(code)}
+        </Alert>
+      </Snackbar>
     </React.Fragment>
   );
 }

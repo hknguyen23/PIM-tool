@@ -61,13 +61,11 @@ public class UserController extends AbstractApplicationController {
             id = Long.parseLong(idString);
         } catch (NumberFormatException ex) {
             ex.printStackTrace();
-            List<String> errors = new ArrayList<>();
-            errors.add(ex.getMessage());
             return new RestResponseFail(
                     "Invalid id: " + idString,
                     HttpStatus.BAD_REQUEST,
                     HttpStatus.BAD_REQUEST.value(),
-                    errors
+                    ex.getMessage()
             );
         }
 
@@ -83,13 +81,11 @@ public class UserController extends AbstractApplicationController {
             );
         } catch (UserNotFoundException ex) {
             ex.printStackTrace();
-            List<String> errors = new ArrayList<>();
-            errors.add(ex.getMessage());
             return new RestResponseFail(
                     "Can't find user with id: " + id,
                     HttpStatus.BAD_REQUEST,
                     HttpStatus.BAD_REQUEST.value(),
-                    errors
+                    ex.getMessage()
             );
         }
     }
@@ -108,13 +104,11 @@ public class UserController extends AbstractApplicationController {
             );
         } catch (UserNotFoundException ex) {
             ex.printStackTrace();
-            List<String> errors = new ArrayList<>();
-            errors.add(ex.getMessage());
             return new RestResponseFail(
                     "Can't find user with username: " + username,
                     HttpStatus.BAD_REQUEST,
                     HttpStatus.BAD_REQUEST.value(),
-                    errors
+                    ex.getMessage()
             );
         }
     }
@@ -154,7 +148,7 @@ public class UserController extends AbstractApplicationController {
                     "Task id must be a number",
                     HttpStatus.BAD_REQUEST,
                     HttpStatus.BAD_REQUEST.value(),
-                    errors
+                    errors.toString()
             );
         }
 
@@ -172,12 +166,11 @@ public class UserController extends AbstractApplicationController {
 
         } catch (TaskNotFoundException ex) {
             ex.printStackTrace();
-            errors.add(ex.getMessage());
             return new RestResponseFail(
                     "Invalid task id",
                     HttpStatus.BAD_REQUEST,
                     HttpStatus.BAD_REQUEST.value(),
-                    errors
+                    ex.getMessage()
             );
         }
     }
@@ -188,15 +181,21 @@ public class UserController extends AbstractApplicationController {
         JSONObject jsonObject = new JSONObject(requestBody);
 
         if (!jsonObject.has("id")) {
-            List<String> errors = new ArrayList<>();
-            errors.add("Missing id");
-            return new RestResponseFail("Update fail", HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), errors);
+            return new RestResponseFail(
+                    "Update fail",
+                    HttpStatus.BAD_REQUEST,
+                    HttpStatus.BAD_REQUEST.value(),
+                    "Missing id"
+            );
         } else {
             Object object = jsonObject.get("id");
             if (!(object instanceof Number)) {
-                List<String> errors = new ArrayList<>();
-                errors.add("id must be a number");
-                return new RestResponseFail("Update fail", HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), errors);
+                return new RestResponseFail(
+                        "Update fail",
+                        HttpStatus.BAD_REQUEST,
+                        HttpStatus.BAD_REQUEST.value(),
+                        "id must be a number"
+                );
             }
         }
 
@@ -206,9 +205,12 @@ public class UserController extends AbstractApplicationController {
             user = new User(jsonObject);
         } catch (InvalidProjectFinishingDateFormatException | NullUserPropertiesException ex) {
             ex.printStackTrace();
-            List<String> errors = new ArrayList<>();
-            errors.add(ex.getMessage());
-            return new RestResponseFail("Update fail", HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), errors);
+            return new RestResponseFail(
+                    "Update fail",
+                    HttpStatus.BAD_REQUEST,
+                    HttpStatus.BAD_REQUEST.value(),
+                    ex.getMessage()
+            );
         }
 
         try {
@@ -218,10 +220,12 @@ public class UserController extends AbstractApplicationController {
             return new RestResponseSuccess(map, "Update successfully", HttpStatus.OK, HttpStatus.OK.value());
         } catch (UserNotFoundException ex) {
             ex.printStackTrace();
-            List<String> errors = new ArrayList<>();
-            errors.add(ex.getMessage());
-            errors.add("No user with id: " + user.getId());
-            return new RestResponseFail("Update fail", HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), errors);
+            return new RestResponseFail(
+                    "Update fail",
+                    HttpStatus.BAD_REQUEST,
+                    HttpStatus.BAD_REQUEST.value(),
+                    "No user with id: " + user.getId()
+            );
         }
     }
 }

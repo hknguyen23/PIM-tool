@@ -1,6 +1,9 @@
+import { MIN_DATE, MAX_DATE } from '../Constants/config.json';
+
 export default {
   messages: {
     success: 'Sucessfully proceed',
+    notFound: 'Not Found, please refresh the page',
     fail: 'Fail to proceed',
     projectNumberAlreadyExists: 'The project number already existed',
     projectNumberAlreadyExistsPleaseChooseAnother: 'The project number already existed. Please select a different project number',
@@ -85,11 +88,14 @@ export default {
       updateButton: 'Update Project',
       topErrorMessage: 'There\'re some errors, please check all the mandatory and error fields (*)',
       errors: {
+        maximumLength: '* This field length can\'t exceed 50',
         emptyField: '* This field can\'t be empty',
         NaN: '* This field must be a number',
         noItemSelected: '* Please choose one item from the list',
         invalidDate: '* Invalid date',
-        endDateIsEqualOrLessThanStartDate: '* End date can\'t be equal or less than Start date'
+        endDateIsEqualOrLessThanStartDate: '* End date can\'t be equal or less than Start date',
+        minimalDate: `* Date should not be before ${MIN_DATE}`,
+        maximalDate: `* Date should not be after ${MAX_DATE}`
       },
       working: 'Working...'
     }

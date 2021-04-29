@@ -111,6 +111,22 @@ public class ProjectRepositoryTest {
                         .and(QProject.project.groupz.name.eq(GROUP_NAME)))
                 .fetchFirst();
 
+//        List<Project> projects = new JPAQuery<Project>(em)
+//                .from(QProject.project)
+//                .innerJoin(QProject.project.groupz, QGroupz.groupz)
+//                .innerJoin(QProject.project.employees, QEmployee.employee)
+//                .fetchJoin()
+//                .where(QProject.project.status.eq("NEW")
+//                        .and(QProject.project.projectNumber.eq(1L)
+//                                .or(QProject.project.projectName.eq("NAME")
+//                                .or(QProject.project.customer.eq("CUSTOMER")))
+//                        )
+//                )
+//                .orderBy(QProject.project.projectNumber.asc())
+//                .offset(0)
+//                .limit(5)
+//                .fetch();
+
         Assert.assertEquals(PROJECT_NAME, projectTest.getProjectName());
         Assert.assertEquals(PROJECT_CUSTOMER, projectTest.getCustomer());
         Assert.assertEquals(PROJECT_ACTIVATED, projectTest.getActivated());

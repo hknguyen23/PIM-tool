@@ -5,18 +5,18 @@ import org.springframework.http.HttpStatus;
 import java.util.List;
 
 public class RestResponseFail extends RestResponse {
-    private List<String> errors;
+    private String error;
 
-    public List<String> getErrors() {
-        return errors;
+    public String getError() {
+        return error;
     }
 
-    public void setErrors(List<String> errors) {
-        this.errors = errors;
+    public void setError(String error) {
+        this.error = error;
     }
 
-    public RestResponseFail(String message, HttpStatus status, int code, List<String> errors) {
+    public RestResponseFail(String message, HttpStatus status, int code, String error) {
         super(message, status, code);
-        this.errors = errors;
+        this.error = error;
     }
 }

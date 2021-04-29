@@ -1,6 +1,9 @@
+import { MIN_DATE, MAX_DATE } from '../Constants/config.json';
+
 export default {
   messages: {
     success: 'Thành công',
+    notFound: 'Không tìm thấy, vui lòng tải lại trang',
     fail: 'Thất bại',
     projectNumberAlreadyExists: 'Số dự án này đã tồn tại',
     projectNumberAlreadyExistsPleaseChooseAnother: 'Số dự án này đã tồn tại. Vui lòng chọn số dự án khác',
@@ -85,11 +88,14 @@ export default {
       updateButton: 'Cập nhật',
       topErrorMessage: 'Có lỗi xảy ra, vui lòng nhập đầy đủ thông tin các vùng bắt buộc và đang báo lỗi (*)',
       errors: {
+        maximumLength: '* Độ dài dữ liệu vùng này không vượt quá 50 ký tự',
         emptyField: '* Vùng này không được để trống',
         NaN: '* Dữ liệu phải là một con số',
         noItemSelected: '* Vui lòng chọn một lựa chọn trong danh sách',
         invalidDate: '* Ngày không hợp lệ',
-        endDateIsEqualOrLessThanStartDate: '* Ngày kết thúc không thể bằng hoặc nhỏ hơn ngày bắt đầu'
+        endDateIsEqualOrLessThanStartDate: '* Ngày kết thúc không thể bằng hoặc nhỏ hơn ngày bắt đầu',
+        minimalDate: `* Ngày không được nhỏ hơn ngày ${MIN_DATE}`,
+        maximalDate: `* Ngày không được lớn hơn ngày ${MAX_DATE}`
       },
       working: 'Đang chạy...'
     }

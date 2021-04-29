@@ -8,12 +8,15 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Snackbar
 } from '@material-ui/core';
+import Alert from '@material-ui/lab/Alert';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import { makeStyles } from '@material-ui/core/styles';
 import Translate from 'react-translate-component';
 import CustomPagination from './CustomPagination';
 import { deleteProject, getProjects } from '../../Services/projectService';
+import codeAndMessage from '../../Constants/codeAndMessage';
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -43,6 +46,9 @@ export default function CustomFooter({ filter, searchFieldValue, rowsSelected, s
   const count = rowsSelected.length;
   const [isError, setIsError] = useState(false);
   const [openConfirmDeleteProjectDialog, setOpenConfirmDeleteProjectDialog] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [isSuccessRequest, setIsSuccessRequest] = useState(false);
+  const [code, setCode] = useState(0);
 
   const handleChangePageSize = (e) => {
     setPageSize(e.target.value);
@@ -58,38 +64,52 @@ export default function CustomFooter({ filter, searchFieldValue, rowsSelected, s
 
     const ids = rowsSelected.map(row => row.id);
     deleteProject(ids)
-      .then(res => {
-        console.log(res);
+      .then(res1 => {
+        console.log(res1);
         const data = {
           currentPage,
           pageSize,
           status: filter.value,
           searchValue: searchFieldValue
         }
-        getProjects(data)
-          .then(res => {
-            console.log(res);
-            setIsLoading(true);
-            if (res.code === 200) {
-              if (res.data.currentPage === res.data.totalPages) {
-                setCurrentPage(res.data.currentPage - 1);
+        if (res1.code === 200) {
+          getProjects(data)
+            .then(res2 => {
+              console.log(res2);
+              setCode(res2.code);
+              if (res2.code === 200) {
+                if (res2.data.currentPage >= res2.data.totalPages) {
+                  setCurrentPage(res2.data.totalPages - 1);
+                } else {
+                  setCurrentPage(res2.data.currentPage);
+                }
+                setPageCount(res2.data.totalPages);
+                setProjects(res2.data.data);
+                setIsLoading(false);
+                setRowsSelected([]);
+                setIsSuccessRequest(true);
+                setOpenSnackbar(true);
               } else {
-                setCurrentPage(res.data.currentPage);
+                setIsLoading(true);
+                setIsSuccessRequest(false);
+                setProjects([]);
               }
-              setPageCount(res.data.totalPages);
-              setProjects(res.data.data);
-              setIsLoading(false);
-              setRowsSelected([]);
-            } else {
-              history.push("/error", { errorMessage: res.message });
-              setProjects([]);
-            }
-          })
-          .catch(error => {
-            console.log(error);
-          });
+            })
+            .catch(error => {
+              history.push("/error", { errorMessage: error });
+              console.log(error);
+            });
+        } else {
+          setCode(res1.code);
+          setIsLoading(true);
+          setIsSuccessRequest(false);
+          setOpenSnackbar(true);
+          setProjects([]);
+          setCurrentPage(0);
+        }
       })
       .catch(error => {
+        history.push("/error", { errorMessage: error });
         console.log(error);
       });
 
@@ -180,6 +200,20 @@ export default function CustomFooter({ filter, searchFieldValue, rowsSelected, s
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        open={openSnackbar}
+        onClose={() => setOpenSnackbar(false)}
+      >
+        <Alert
+          severity={isSuccessRequest ? "success" : "error"}
+          color={isSuccessRequest ? "success" : "error"}
+          variant="filled"
+        >
+          {codeAndMessage.get(code)}
+        </Alert>
+      </Snackbar>
 
     </React.Fragment>
   );

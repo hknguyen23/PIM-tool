@@ -4,6 +4,7 @@ import Translate from 'react-translate-component';
 const codeAndMessage = new Map();
 
 codeAndMessage.set(200, <Translate content="messages.success" />);
+codeAndMessage.set(404, <Translate content="messages.notFound" />);
 codeAndMessage.set(500, <Translate content="messages.fail" />);
 
 codeAndMessage.set(101, <Translate content="messages.projectNumberAlreadyExistsPleaseChooseAnother" />);

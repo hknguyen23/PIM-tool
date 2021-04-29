@@ -59,7 +59,6 @@ public class ProjectServiceImpl implements ProjectService {
                         pageable
                 );
             } catch (NumberFormatException ex) {
-                ex.printStackTrace();
                 return projectRepository.findByStatusAndProjectNameIsContainingIgnoreCaseOrStatusAndCustomerIsContainingIgnoreCase(
                         status,
                         searchValue,
@@ -83,7 +82,6 @@ public class ProjectServiceImpl implements ProjectService {
                         pageable
                 );
             } catch (NumberFormatException ex) {
-                ex.printStackTrace();
                 return projectRepository.findByProjectNameIsContainingIgnoreCaseOrCustomerIsContainingIgnoreCase(
                         searchValue,
                         searchValue,
