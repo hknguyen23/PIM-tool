@@ -1,32 +1,17 @@
 package vn.elca.training.model.entity;
 
-import org.apache.tomcat.jni.Local;
-import org.json.JSONObject;
-import vn.elca.training.model.dto.ProjectDto;
-import vn.elca.training.model.exception.InvalidProjectFinishingDateFormatException;
-import vn.elca.training.model.exception.NullProjectPropertiesException;
-import vn.elca.training.util.DateTimeUtils;
+import org.hibernate.validator.constraints.Range;
+import vn.elca.training.model.enumerator.ProjectStatuses;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 /**
  * @author vlp
  */
 @Entity
-public class Project extends Key {
-    public static final List<String> columnNames = new ArrayList<>();
-    static {
-        columnNames.add("name");
-        columnNames.add("customer");
-        columnNames.add("finishingDate");
-    }
-
+public class Project extends AbstractEntity {
     @Column(name = "ProjectNumber", nullable = false)
     private Long projectNumber;
 
@@ -37,7 +22,8 @@ public class Project extends Key {
     private String customer;
 
     @Column(name = "Status", length = 3, nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private ProjectStatuses status;
 
     @Column(name = "StartDate", nullable = false)
     private LocalDate startDate;
@@ -45,21 +31,9 @@ public class Project extends Key {
     @Column(name = "EndDate")
     private LocalDate endDate;
 
-    @Column(name = "LastModifiedDate")
-    private LocalDate lastModifiedDate;
-
-    @Column
-    private LocalDate finishingDate;
-
-    @Column
-    private Boolean isActivated;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Group_ID")
-    private Groupz groupz;
-
-    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    private Set<Task> tasks = new HashSet<>();
+    private Group group;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -78,35 +52,16 @@ public class Project extends Key {
     }
 
     public Project() {
+
     }
 
-    public Project(ProjectDto dto) {
-        this.id = dto.getId();
-        this.projectNumber = dto.getProjectNumber();
-        this.projectName = dto.getProjectName();
-        this.customer = dto.getCustomer();
-        this.status = (String)dto.getStatus().get("value");
-        this.startDate = dto.getStartDate();
-        this.endDate = dto.getEndDate();
-        this.lastModifiedDate = LocalDate.now();
-    }
-
-    public Project(String projectName, LocalDate finishingDate) {
+    public Project(String projectName) {
         this.projectName = projectName;
-        this.finishingDate = finishingDate;
     }
 
-    public Project(String projectName, LocalDate finishingDate, Boolean isActivated) {
+    public Project(String projectName, String customer) {
         this.projectName = projectName;
-        this.finishingDate = finishingDate;
-        this.isActivated = isActivated;
-    }
-
-    public Project(String projectName, LocalDate finishingDate, String customer, Boolean isActivated) {
-        this.projectName = projectName;
-        this.finishingDate = finishingDate;
         this.customer = customer;
-        this.isActivated = isActivated;
     }
 
     public String getProjectName() {
@@ -117,14 +72,6 @@ public class Project extends Key {
         this.projectName = projectName;
     }
 
-    public LocalDate getFinishingDate() {
-        return finishingDate;
-    }
-
-    public void setFinishingDate(LocalDate finishingDate) {
-        this.finishingDate = finishingDate;
-    }
-
     public String getCustomer() {
         return customer;
     }
@@ -133,20 +80,12 @@ public class Project extends Key {
         this.customer = customer;
     }
 
-    public Boolean getActivated() {
-        return isActivated;
+    public Group getGroup() {
+        return group;
     }
 
-    public void setActivated(Boolean activated) {
-        isActivated = activated;
-    }
-
-    public Groupz getGroupz() {
-        return groupz;
-    }
-
-    public void setGroupz(Groupz groupz) {
-        this.groupz = groupz;
+    public void setGroup(Group group) {
+        this.group = group;
     }
 
     public Long getProjectNumber() {
@@ -157,11 +96,11 @@ public class Project extends Key {
         this.projectNumber = projectNumber;
     }
 
-    public String getStatus() {
+    public ProjectStatuses getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(ProjectStatuses status) {
         this.status = status;
     }
 
@@ -181,19 +120,26 @@ public class Project extends Key {
         this.endDate = endDate;
     }
 
-    public LocalDate getLastModifiedDate() {
-        return lastModifiedDate;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Project project = (Project)o;
+        return id.equals(project.id) && projectNumber.equals(project.projectNumber)
+                && projectName.equals(project.projectName) && customer.equals(project.customer)
+                && status == project.status && startDate.equals(project.startDate)
+                && Objects.equals(endDate, project.endDate) && group.equals(project.group)
+                && Objects.equals(employees, project.employees);
     }
 
-    public void setLastModifiedDate(LocalDate lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
-    }
-
-    public Set<Task> getTasks() {
-        return tasks;
-    }
-
-    public void setTasks(Set<Task> tasks) {
-        this.tasks = tasks;
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, projectNumber, projectName, customer, status, startDate, endDate, group, employees);
     }
 }

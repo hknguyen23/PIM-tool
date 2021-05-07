@@ -23,16 +23,14 @@ import CustomCheckbox from './CustomCheckbox';
 import CustomNoRowsOverlay from './CustomNoRowsOverlay';
 import CustomLoadingOverlay from './CustomLoadingOverlay';
 import CustomFooter from './CustomFooter';
-import { DATE_FORMAT_FOR_FRONTEND, PAGE_SIZE } from '../../Constants/config.json';
-import { getProjects, deleteProject } from '../../Services/projectService';
+import {
+  DATE_FORMAT_FOR_FRONTEND,
+  PAGE_SIZE,
+  PROJECT_STATUSES,
+  SUCCESS_STATUS_CODE
+} from '../../Constants/config.json';
+import { getListProjects, deleteProject } from '../../Services/ProjectService';
 import codeAndMessage from '../../Constants/codeAndMessage';
-
-const projectStatuses = [
-  { value: 'NEW', title: 'New' },
-  { value: 'PLA', title: 'Planned' },
-  { value: 'INP', title: 'In process' },
-  { value: 'FIN', title: 'Finished' }
-];
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -196,21 +194,6 @@ export default function SearchProject() {
       headerAlign: 'center',
       align: 'center',
       renderCell: (params) => {
-        // const onClick = () => {
-        //   const api = params.api;
-        //   const fields = api
-        //     .getAllColumns()
-        //     .map((c) => c.field)
-        //     .filter((c) => c !== "__check__" && !!c);
-        //   const thisRow = {};
-
-        //   fields.forEach((f) => {
-        //     thisRow[f] = params.getValue(f);
-        //   });
-
-        //   return alert(JSON.stringify(thisRow, null, 2));
-        // }
-
         return params.row.status.value === 'NEW'
           ? <IconButton style={{ flex: 1 }} onClick={() => {
             localStorage.setItem('deleteID', params.row.id);
@@ -237,15 +220,17 @@ export default function SearchProject() {
       status: filter.value,
       searchValue: searchFieldValue
     }
-    getProjects(data)
+    getListProjects(data)
       .then(res => {
         console.log(res);
-        if (res.code === 200) {
-          if (res.data.currentPage >= res.data.totalPages) {
+        if (res.code === SUCCESS_STATUS_CODE) {
+          if (res.data.currentPage >= res.data.totalPages && res.data.totalPages > 0) {
             setCurrentPage(res.data.totalPages - 1);
-          } else setCurrentPage(res.data.currentPage);
+          } else {
+            setCurrentPage(res.data.currentPage);
+          }
           setPageCount(res.data.totalPages);
-          setProjects(res.data.data);
+          setProjects(res.data.projects);
           setIsLoading(false);
           setRowsSelected([]);
         } else {
@@ -254,8 +239,8 @@ export default function SearchProject() {
         }
       })
       .catch(error => {
-        history.push("/error", { errorMessage: error });
         console.log(error);
+        history.push("/error", { errorMessage: error });
       });
   }, [currentPage, pageSize]);
 
@@ -266,15 +251,17 @@ export default function SearchProject() {
       status: filter.value,
       searchValue: searchFieldValue
     }
-    getProjects(data)
+    getListProjects(data)
       .then(res => {
         console.log(res);
-        if (res.code === 200) {
-          if (res.data.currentPage >= res.data.totalPages) {
+        if (res.code === SUCCESS_STATUS_CODE) {
+          if (res.data.currentPage >= res.data.totalPages && res.data.totalPages > 0) {
             setCurrentPage(res.data.totalPages - 1);
-          } else setCurrentPage(res.data.currentPage);
+          } else {
+            setCurrentPage(res.data.currentPage);
+          }
           setPageCount(res.data.totalPages);
-          setProjects(res.data.data);
+          setProjects(res.data.projects);
           setIsLoading(false);
           setRowsSelected([]);
         } else {
@@ -282,8 +269,8 @@ export default function SearchProject() {
         }
       })
       .catch(error => {
-        history.push("/error", { errorMessage: error });
         console.log(error);
+        history.push("/error", { errorMessage: error });
       });
   }
 
@@ -301,22 +288,22 @@ export default function SearchProject() {
       status: '',
       searchValue: ''
     }
-    getProjects(data)
+    getListProjects(data)
       .then(res => {
         console.log(res);
         setIsReset(false);
-        if (res.code === 200) {
+        if (res.code === SUCCESS_STATUS_CODE) {
           setCurrentPage(res.data.currentPage);
           setPageCount(res.data.totalPages);
-          setProjects(res.data.data);
+          setProjects(res.data.projects);
           setIsLoading(false);
         } else {
           setProjects([]);
         }
       })
       .catch(error => {
-        history.push("/error", { errorMessage: error });
         console.log(error);
+        history.push("/error", { errorMessage: error });
       });
   }
 
@@ -332,19 +319,19 @@ export default function SearchProject() {
           status: filter.value,
           searchValue: searchFieldValue
         }
-        if (res1.code === 200) {
-          getProjects(data)
+        if (res1.code === SUCCESS_STATUS_CODE) {
+          getListProjects(data)
             .then(res2 => {
               console.log(res2);
               setCode(res2.code);
-              if (res2.code === 200) {
-                if (res2.data.currentPage >= res2.data.totalPages) {
+              if (res2.code === SUCCESS_STATUS_CODE) {
+                if (res2.data.currentPage >= res2.data.totalPages && res2.data.totalPages > 0) {
                   setCurrentPage(res2.data.totalPages - 1);
                 } else {
                   setCurrentPage(res2.data.currentPage);
                 }
                 setPageCount(res2.data.totalPages);
-                setProjects(res2.data.data);
+                setProjects(res2.data.projects);
                 setIsLoading(false);
                 setRowsSelected([]);
                 setIsSuccessRequest(true);
@@ -356,8 +343,8 @@ export default function SearchProject() {
               }
             })
             .catch(error => {
-              history.push("/error", { errorMessage: error });
               console.log(error);
+              history.push("/error", { errorMessage: error });
             });
         } else {
           setCode(res1.code);
@@ -369,8 +356,8 @@ export default function SearchProject() {
         }
       })
       .catch(error => {
-        history.push("/error", { errorMessage: error });
         console.log(error);
+        history.push("/error", { errorMessage: error });
       });
 
     setOpenConfirmDeleteProjectDialog(false);
@@ -403,7 +390,7 @@ export default function SearchProject() {
             className={classes.comboBox}
             id="combo-box-project-status"
             size='small'
-            options={projectStatuses}
+            options={PROJECT_STATUSES}
             getOptionLabel={(option) => option.title}
             getOptionSelected={(option, value) => {
               return option.value === value.value || value.value === '';
@@ -420,17 +407,17 @@ export default function SearchProject() {
                 status: newValue === null ? '' : newValue.value,
                 searchValue: searchFieldValue
               }
-              getProjects(data)
+              getListProjects(data)
                 .then(res => {
                   console.log(res);
-                  if (res.code === 200) {
-                    if (res.data.currentPage >= res.data.totalPages) {
+                  if (res.code === SUCCESS_STATUS_CODE) {
+                    if (res.data.currentPage >= res.data.totalPages && res.data.totalPages > 0) {
                       setCurrentPage(res.data.totalPages - 1);
                     } else {
                       setCurrentPage(res.data.currentPage);
                     }
                     setPageCount(res.data.totalPages);
-                    setProjects(res.data.data);
+                    setProjects(res.data.projects);
                     setIsLoading(false);
                     setRowsSelected([]);
                   } else {
@@ -438,8 +425,8 @@ export default function SearchProject() {
                   }
                 })
                 .catch(error => {
-                  history.push("/error", { errorMessage: error });
                   console.log(error);
+                  history.push("/error", { errorMessage: error });
                 });
             }}
             renderInput={(params) =>

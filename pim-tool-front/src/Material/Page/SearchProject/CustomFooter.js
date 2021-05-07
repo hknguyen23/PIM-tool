@@ -15,8 +15,9 @@ import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import { makeStyles } from '@material-ui/core/styles';
 import Translate from 'react-translate-component';
 import CustomPagination from './CustomPagination';
-import { deleteProject, getProjects } from '../../Services/projectService';
+import { deleteProject, getListProjects } from '../../Services/ProjectService';
 import codeAndMessage from '../../Constants/codeAndMessage';
+import { SUCCESS_STATUS_CODE } from '../../Constants/config.json';
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -72,19 +73,19 @@ export default function CustomFooter({ filter, searchFieldValue, rowsSelected, s
           status: filter.value,
           searchValue: searchFieldValue
         }
-        if (res1.code === 200) {
-          getProjects(data)
+        if (res1.code === SUCCESS_STATUS_CODE) {
+          getListProjects(data)
             .then(res2 => {
               console.log(res2);
               setCode(res2.code);
-              if (res2.code === 200) {
-                if (res2.data.currentPage >= res2.data.totalPages) {
+              if (res2.code === SUCCESS_STATUS_CODE) {
+                if (res2.data.currentPage >= res2.data.totalPages && res2.data.totalPages > 0) {
                   setCurrentPage(res2.data.totalPages - 1);
                 } else {
                   setCurrentPage(res2.data.currentPage);
                 }
                 setPageCount(res2.data.totalPages);
-                setProjects(res2.data.data);
+                setProjects(res2.data.projects);
                 setIsLoading(false);
                 setRowsSelected([]);
                 setIsSuccessRequest(true);
@@ -96,8 +97,8 @@ export default function CustomFooter({ filter, searchFieldValue, rowsSelected, s
               }
             })
             .catch(error => {
-              history.push("/error", { errorMessage: error });
               console.log(error);
+              history.push("/error", { errorMessage: error });
             });
         } else {
           setCode(res1.code);
@@ -109,8 +110,8 @@ export default function CustomFooter({ filter, searchFieldValue, rowsSelected, s
         }
       })
       .catch(error => {
-        history.push("/error", { errorMessage: error });
         console.log(error);
+        history.push("/error", { errorMessage: error });
       });
 
     setOpenConfirmDeleteProjectDialog(false);

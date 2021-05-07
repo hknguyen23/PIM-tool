@@ -1,7 +1,7 @@
 
->
-java:S1170"!Make this final field static too.(œðëœ8ÚˆÏÂŽ/
-v	java:S116"ZRename this field "TITLE_ATTRIBUTE" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(œðëœ8ªÇÏÂŽ/
-v	java:S116"ZRename this field "VALUE_ATTRIBUTE" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ž¼’¹8úêÎÂŽ/
->
-java:S1170"!Make this final field static too.(Ž¼’¹8úêÎÂŽ/
+s
+java:S1128"QRemove this unused import 'org.springframework.web.bind.annotation.RequestParam'.(Â¬À·ùÿÿÿÿ8±¸Æþ“/
+Z
+java:S1128	"=Remove this unused import 'javax.validation.constraints.Max'.(þÉ½¦8±¸Æþ“/
+h
+java:S1128"FRemove this unused import 'org.hibernate.validator.constraints.Range'.(£áªçúÿÿÿÿ8º­Úþ“/

@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import counterpart from 'counterpart';
-import { makeStyles } from '@material-ui/core/styles';
 
 import './App.css';
 import Header from './Page/Header';
@@ -19,27 +18,13 @@ const locales = [
 
 locales.forEach(locale => counterpart.registerTranslations(locale.name, locale.data));
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-    margin: '100px'
-  },
-  content: {
-    flexGrow: 1,
-    marginTop: '10px',
-    marginLeft: '270px',
-  },
-}));
-
 function App() {
-  const classes = useStyles();
-
   return (
     <Router>
-      <div className={classes.root}>
+      <div className="root">
         <Header counterpart={counterpart} />
 
-        <main className={classes.content}>
+        <main className="content">
           <MainPage />
         </main>
       </div>

@@ -2,14 +2,13 @@ package vn.elca.training.web;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vn.elca.training.model.dto.EmployeeDto;
-import vn.elca.training.model.dto.GroupDto;
-import vn.elca.training.model.dto.RestResponse;
-import vn.elca.training.model.dto.RestResponseSuccess;
+import vn.elca.training.model.dto.ResponseBodyDto;
 import vn.elca.training.service.EmployeeService;
 
 import java.util.HashMap;
@@ -25,19 +24,20 @@ public class EmployeeController extends AbstractApplicationController {
     private EmployeeService employeeService;
 
     @GetMapping("/")
-    public RestResponse findAll() {
+    public ResponseEntity<ResponseBodyDto> findAll() {
         List<EmployeeDto> employeeDtos = employeeService.findAll()
                 .stream()
                 .map(mapper::employeeToEmployeeDto)
                 .collect(Collectors.toList());
 
         Map<String, Object> map = new HashMap<>();
-        map.put("data", employeeDtos);
-        return new RestResponseSuccess(
-                map,
+        map.put("employees", employeeDtos);
+        ResponseBodyDto responseBody = new ResponseBodyDto(
                 "Total employees: " + employeeDtos.size(),
-                HttpStatus.OK,
-                HttpStatus.OK.value()
+                null,
+                200,
+                map
         );
+        return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 }

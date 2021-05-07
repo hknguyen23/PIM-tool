@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DateTimeUtils {
-    public final static List<String> formats = new ArrayList<>();
+    public final static List<String> FORMATS = new ArrayList<>();
     static {
-        formats.add("dd/MM/yyyy");
-        formats.add("yyyy-MM-dd");
+        FORMATS.add("dd/MM/yyyy");
+        FORMATS.add("yyyy-MM-dd");
     }
 }

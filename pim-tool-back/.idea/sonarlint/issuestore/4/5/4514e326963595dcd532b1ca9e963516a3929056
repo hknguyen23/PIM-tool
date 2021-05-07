@@ -1,16 +1,7 @@
 
-f
-java:S1128"DRemove this unused import 'vn.elca.training.service.ProjectService'.(µÕ†Óýÿÿÿÿ8Èà’æˆ/
-^
-java:S1128"ARemove this unused import 'vn.elca.training.service.UserService'.(ÜÒåÊ8Èà’æˆ/
 J
-java:S3740("/Provide the parametrized type for this generic.(Ô‚ð“ÿÿÿÿÿ
+java:S3740%"/Provide the parametrized type for this generic.(úå‡Ôýÿÿÿÿ
 J
-java:S3740)"/Provide the parametrized type for this generic.(úå‡Ôýÿÿÿÿ
-d
-java:S1128"BRemove this unused import 'vn.elca.training.service.AuditService'.(±‹„¼ÿÿÿÿÿ8Èà’æˆ/
-]	java:S125/"<This block of commented-out lines of code should be removed.(ŸŠøÕþÿÿÿÿ8ÄÂ¢æˆ/
+java:S3740$"/Provide the parametrized type for this generic.(Ô‚ð“ÿÿÿÿÿ
 J
-java:S3740)"/Provide the parametrized type for this generic.(úå‡Ôýÿÿÿÿ
-c
-java:S1128"ARemove this unused import 'vn.elca.training.service.TaskService'.(ÌÙÝÙýÿÿÿÿ8Èà’æˆ/
+java:S3740%"/Provide the parametrized type for this generic.(úå‡Ôýÿÿÿÿ

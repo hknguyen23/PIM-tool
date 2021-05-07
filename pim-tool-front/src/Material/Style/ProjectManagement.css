@@ -1,0 +1,88 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  width: 940px
+}
+
+.grow {
+  flex-grow: 1
+}
+
+.formItem {
+  display: flex;
+  padding: 19px
+}
+
+.required {
+  color: red;
+  font-size: 18pt
+}
+
+.label {
+  width: 190px;
+  font-size: 14pt;
+  font-family: 'Segoe UI';
+  font-weight: 500;
+  color: #666666
+}
+
+.formTitle {
+  font-size: 18pt;
+  font-family: 'Segoe UI';
+  font-weight: 500;
+  color: #666666
+}
+
+.MuiTextField-root.shortInputField, .MuiAutocomplete-root.shortInputField {
+  width: 240px;
+  height: 40px
+}
+
+.MuiTextField-root.longInputField, .MuiAutocomplete-root.longInputField {
+  width: 710px;
+  height: 40px
+}
+
+.MuiTextField-root.datePicker {
+  border: 1px solid #ccc;
+  padding: 5px;
+  border-radius: 4px;
+  width: 240px;
+  height: 40px
+}
+
+.MuiButton-root.button {
+  padding: 0;
+  margin-left: 50px;
+  max-width: 250px;
+  width: 210px;
+  height: 35px;
+  font-size: 14pt;
+  border-radius: 4px;
+  line-height: normal;
+  text-transform: none
+}
+
+.helperTextForDatePicker {
+  display: flex;
+  margin-left: 210px;
+  margin-top: -30px;
+}
+
+.errorLabelStartDate {
+  padding-left: 14px;
+  padding-top: 4px;
+  width: 240px;
+  font-size: 10pt;
+  font-family: 'Segoe UI';
+  color: red
+}
+
+.errorLabelEndDate {
+  padding-right: 19px;
+  padding-top: 4px;
+  width: 240px;
+  font-size: 10pt;
+  font-family: 'Segoe UI';
+  color: red
+}

@@ -4,6 +4,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 import vn.elca.training.model.dto.*;
 import vn.elca.training.model.entity.*;
+import vn.elca.training.model.enumerator.ProjectStatuses;
 
 import java.util.stream.Collectors;
 
@@ -12,55 +13,63 @@ import java.util.stream.Collectors;
  */
 @Component
 public class ApplicationMapper {
-    private final ModelMapper mapper = new ModelMapper();
-
     public ApplicationMapper() {
         // Mapper utility class
     }
 
     public ProjectDto projectToProjectDto(Project project) {
         ProjectDto dto = new ProjectDto();
+
         dto.setId(project.getId());
         dto.setVersion(project.getVersion());
         dto.setProjectNumber(project.getProjectNumber());
         dto.setProjectName(project.getProjectName());
         dto.setCustomer(project.getCustomer());
-        dto.setGroup(project.getGroupz());
+        dto.setGroup(groupToGroupDto(project.getGroup()));
         dto.setStatus(project.getStatus());
         dto.setStartDate(project.getStartDate());
         dto.setEndDate(project.getEndDate());
         dto.setEmployees(project.getEmployees().stream().map(this::employeeToEmployeeDto).collect(Collectors.toList()));
 
-//        dto.setFinishingDate(project.getFinishingDate());
-//        dto.setActivated(project.getActivated());
-//        dto.setTasks(project.getTasks().stream().map(this::taskToTaskDto).collect(Collectors.toList()));
         return dto;
     }
 
-    public TaskDto taskToTaskDto(Task task) {
-        TaskDto dto = new TaskDto();
-        dto.setId(task.getId());
-        dto.setTaskName(task.getName());
-        dto.setDeadline(task.getDeadline());
-        dto.setProjectName(task.getProject() != null
-                ? task.getProject().getProjectName()
-                : null);
-        return dto;
+    public Project projectDtoToProject(ProjectDto dto) {
+        Project project = new Project();
+
+        project.setId(dto.getId());
+        project.setVersion(dto.getVersion());
+        project.setProjectNumber(dto.getProjectNumber());
+        project.setProjectName(dto.getProjectName());
+        project.setCustomer(dto.getCustomer());
+        project.setStatus(dto.getStatus());
+        project.setStartDate(dto.getStartDate());
+        project.setEndDate(dto.getEndDate());
+
+        return project;
     }
 
-    public UserDto userToUserDto(User user) {
-        UserDto dto = new UserDto();
-        dto.setId(user.getId());
-        dto.setUsername(user.getUsername());
-        dto.setFullName(user.getFullName());
-        dto.setTasks(user.getTasks().stream().map(this::taskToTaskDto).collect(Collectors.toList()));
-        return dto;
+    public Project projectToProject(Project oldProject) {
+        Project newProject = new Project();
+
+        newProject.setId(oldProject.getId());
+        newProject.setVersion(oldProject.getVersion());
+        newProject.setProjectNumber(oldProject.getProjectNumber());
+        newProject.setProjectName(oldProject.getProjectName());
+        newProject.setCustomer(oldProject.getCustomer());
+        newProject.setStatus(oldProject.getStatus());
+        newProject.setStartDate(oldProject.getStartDate());
+        newProject.setEndDate(oldProject.getEndDate());
+        newProject.setGroup(oldProject.getGroup());
+        newProject.setEmployees(oldProject.getEmployees());
+
+        return newProject;
     }
 
-    public GroupDto groupToGroupDto(Groupz groupz) {
+    public GroupDto groupToGroupDto(Group group) {
         GroupDto dto = new GroupDto();
-        dto.setId(groupz.getId());
-        dto.setName(groupz.getName());
+        dto.setId(group.getId());
+        dto.setName(group.getName());
         return dto;
     }
 

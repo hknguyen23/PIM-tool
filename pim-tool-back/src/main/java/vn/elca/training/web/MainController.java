@@ -15,13 +15,8 @@ import vn.elca.training.service.ProjectService;
 @RestController
 public class MainController extends AbstractApplicationController {
     @Autowired
-    //@Qualifier("second")
     private ProjectService projectService;
 
-//    @Autowired
-//    public ProjectController(ProjectService projectService) {
-//        this.projectService = projectService;
-//    }
     @Value("${application.title}")
     private String title;
 

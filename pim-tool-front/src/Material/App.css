@@ -1,0 +1,10 @@
+.root {
+  display: flex;
+  margin: 100px
+}
+
+.content {
+  flex-grow: 1;
+  margin-top: 10px;
+  margin-left: 270px
+}

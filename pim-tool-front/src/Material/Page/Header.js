@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-// import { Link } from 'react-router-dom';
-import { Button, Link } from '@material-ui/core';
+import {
+  Button,
+  Link,
+  AppBar,
+  Toolbar
+} from '@material-ui/core';
 import Translate from 'react-translate-component';
-import { makeStyles } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
 
 import '../Style/Header.css';
 import logo from '../Images/logo_elca.png';
@@ -18,25 +19,7 @@ const locales = [
   { name: 'fr', data: fr }
 ];
 
-const useStyles = makeStyles((theme) => ({
-  grow: {
-    flexGrow: 1,
-  },
-  header: {
-    backgroundColor: 'white',
-    padding: '10px 100px 10px 100px'
-  },
-  button: {
-    padding: 0,
-    borderRadius: '8px',
-    lineHeight: 'normal',
-    fontWeight: 'normal',
-    textTransform: 'none'
-  },
-}));
-
 export default function Header({ counterpart }) {
-  const classes = useStyles();
   const [language, setLanguage] = useState({ name: 'en', data: en });
 
   const handleChangeLocale = (locale) => {
@@ -46,7 +29,7 @@ export default function Header({ counterpart }) {
 
   return (
     <div>
-      <AppBar className={classes.header}>
+      <AppBar className="header">
         <Toolbar>
 
           <Link href='/' style={{ cursor: 'pointer' }}>
@@ -61,7 +44,7 @@ export default function Header({ counterpart }) {
             </div>
           </Link>
 
-          <div className={classes.grow} />
+          <div className="grow" />
 
           <div className="language">
             {locales.map((locale, i) => {
@@ -80,11 +63,11 @@ export default function Header({ counterpart }) {
             })}
           </div>
 
-          <Button className={classes.button}>
+          <Button className="button">
             <Translate className="help" content="header.help" />
           </Button>
 
-          <Button className={classes.button}>
+          <Button className="button">
             <Translate className="logging" content="header.login" />
           </Button>
         </Toolbar>

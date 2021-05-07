@@ -1,51 +1,48 @@
 package vn.elca.training.model.dto;
 
-import vn.elca.training.model.entity.Groupz;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.Range;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.RequestParam;
+import vn.elca.training.model.enumerator.ProjectStatuses;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author gtn
  *
  */
-public class ProjectDto {
-    private final String VALUE_ATTRIBUTE = "value";
-    private final String TITLE_ATTRIBUTE = "title";
-
-    private Long id;
-    private Long version;
+public class ProjectDto extends AbstractEntityDto {
+    @NotNull
     private Long projectNumber;
+
+    @NotBlank
+    @Length(max = 50)
     private String projectName;
+
+    @NotBlank
+    @Length(max = 50)
     private String customer;
-    private Map<String, Object> status = new LinkedHashMap<>();
-    private Map<String, Object> group = new LinkedHashMap<>();
+
+    @NotNull
+    private ProjectStatuses status;
+
+    @NotNull
+    private GroupDto group;
+
+    @NotNull
+    @DateTimeFormat(pattern = "YYYY-MM-DD")
     private LocalDate startDate;
+
+    @DateTimeFormat(pattern = "YYYY-MM-DD")
     private LocalDate endDate;
+
     private List<Long> employeeIds;
     private List<EmployeeDto> employees;
-
-    private List<TaskDto> tasks;
-    private LocalDate finishingDate;
-    private Boolean isActivated;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getVersion() {
-        return version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
-    }
 
     public Long getProjectNumber() {
         return projectNumber;
@@ -71,41 +68,20 @@ public class ProjectDto {
         this.customer = customer;
     }
 
-    public Map<String, Object> getStatus() {
-        return status;
+    public ProjectStatuses getStatus() {
+        return this.status;
     }
 
-    public void setStatus(String status) {
-        switch (status) {
-            case "NEW":
-                this.status.put(VALUE_ATTRIBUTE, status);
-                this.status.put(TITLE_ATTRIBUTE, "New");
-                break;
-            case "PLA":
-                this.status.put(VALUE_ATTRIBUTE, status);
-                this.status.put(TITLE_ATTRIBUTE, "Planned");
-                break;
-            case "INP":
-                this.status.put(VALUE_ATTRIBUTE, status);
-                this.status.put(TITLE_ATTRIBUTE, "In process");
-                break;
-            case "FIN":
-                this.status.put(VALUE_ATTRIBUTE, status);
-                this.status.put(TITLE_ATTRIBUTE, "Finished");
-                break;
-            default:
-                this.status.put(VALUE_ATTRIBUTE, null);
-                this.status.put(TITLE_ATTRIBUTE, null);
-        }
+    public void setStatus(ProjectStatuses status) {
+        this.status = status;
     }
 
-    public Map<String, Object> getGroup() {
+    public GroupDto getGroup() {
         return group;
     }
 
-    public void setGroup(Groupz groupz) {
-        this.group.put("id", groupz.getId());
-        this.group.put("name", groupz.getName());
+    public void setGroup(GroupDto group) {
+        this.group = group;
     }
 
     public LocalDate getStartDate() {
@@ -140,27 +116,4 @@ public class ProjectDto {
         this.employees = employees;
     }
 
-    public LocalDate getFinishingDate() {
-        return finishingDate;
-    }
-
-    public void setFinishingDate(LocalDate finishingDate) {
-        this.finishingDate = finishingDate;
-    }
-
-    public Boolean getActivated() {
-        return isActivated;
-    }
-
-    public void setActivated(Boolean activated) {
-        isActivated = activated;
-    }
-
-    public List<TaskDto> getTasks() {
-        return tasks;
-    }
-
-    public void setTasks(List<TaskDto> tasks) {
-        this.tasks = tasks;
-    }
 }

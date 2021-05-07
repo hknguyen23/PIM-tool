@@ -1,7 +1,6 @@
 package vn.elca.training.repository;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -32,9 +31,7 @@ public class ProjectRepositoryTest {
             LocalDate finishingDate = LocalDate.now().plusYears(1);
             Project project = new Project(
                     String.format("Project %s", i),
-                    finishingDate,
-                    String.format("Customer %s", i * 100),
-                    true
+                    String.format("Customer %s", i * 100)
             );
             projectRepository.save(project);
         }
@@ -42,41 +39,17 @@ public class ProjectRepositoryTest {
 
     public void createGroupAndProjectData(int nGroups, int nProjects) {
         for (int i = 1; i <= nGroups; i++) {
-            Groupz groupz = new Groupz(String.format("Group %s", i));
-            groupz = groupRepository.save(groupz);
+            Group group = new Group(String.format("Group %s", i));
+            group = groupRepository.save(group);
             for (int j = 1; j <= nProjects; j++) {
-                LocalDate finishingDate = LocalDate.now().plusYears(1);
                 Project project = new Project(
                         String.format("Project %s", (i - 1) * nProjects + j),
-                        finishingDate,
-                        String.format("Customer %s", i * 100),
-                        true
+                        String.format("Customer %s", i * 100)
                 );
-                project.setGroupz(groupz);
+                project.setGroup(group);
                 projectRepository.save(project);
             }
         }
-    }
-
-    @Test
-    public void testCountAll() {
-        projectRepository.save(new Project("KSTA", LocalDate.now()));
-        projectRepository.save(new Project("LAGAPEO", LocalDate.now()));
-        projectRepository.save(new Project("ZHQUEST", LocalDate.now()));
-        projectRepository.save(new Project("SECUTIX", LocalDate.now()));
-        Assert.assertEquals(15, projectRepository.count());
-    }
-
-    @Test
-    public void testFindOneWithSimpleQueryDSL() {
-        final String PROJECT_NAME = "KSTA";
-        projectRepository.save(new Project(PROJECT_NAME, LocalDate.now(), true));
-        Project project = new JPAQuery<Project>(em)
-                .from(QProject.project)
-                .where(QProject.project.projectName.eq(PROJECT_NAME))
-                .where(QProject.project.isActivated.eq(true))
-                .fetchFirst();
-        Assert.assertEquals(PROJECT_NAME, project.getProjectName());
     }
 
     @Test
@@ -93,43 +66,18 @@ public class ProjectRepositoryTest {
         final String GROUP_NAME = "Group 2";
         final String PROJECT_NAME = "Project 8";
         final String PROJECT_CUSTOMER = "Customer 200";
-        final Boolean PROJECT_ACTIVATED = Boolean.TRUE;
-
-//        List<Project> projects = new JPAQuery<Project>(em)
-//                .from(QProject.project)
-//                .innerJoin(QProject.project.groupz, QGroupz.groupz)
-//                .fetchJoin()
-//                .fetch();
 
         Project projectTest = new JPAQuery<Project>(em)
                 .from(QProject.project)
-                .innerJoin(QProject.project.groupz, QGroupz.groupz)
+                .innerJoin(QProject.project.group, QGroup.group)
                 .fetchJoin()
                 .where(QProject.project.projectName.eq(PROJECT_NAME)
                         .and(QProject.project.customer.eq(PROJECT_CUSTOMER))
-                        .and(QProject.project.isActivated.eq(PROJECT_ACTIVATED))
-                        .and(QProject.project.groupz.name.eq(GROUP_NAME)))
+                        .and(QProject.project.group.name.eq(GROUP_NAME)))
                 .fetchFirst();
-
-//        List<Project> projects = new JPAQuery<Project>(em)
-//                .from(QProject.project)
-//                .innerJoin(QProject.project.groupz, QGroupz.groupz)
-//                .innerJoin(QProject.project.employees, QEmployee.employee)
-//                .fetchJoin()
-//                .where(QProject.project.status.eq("NEW")
-//                        .and(QProject.project.projectNumber.eq(1L)
-//                                .or(QProject.project.projectName.eq("NAME")
-//                                .or(QProject.project.customer.eq("CUSTOMER")))
-//                        )
-//                )
-//                .orderBy(QProject.project.projectNumber.asc())
-//                .offset(0)
-//                .limit(5)
-//                .fetch();
 
         Assert.assertEquals(PROJECT_NAME, projectTest.getProjectName());
         Assert.assertEquals(PROJECT_CUSTOMER, projectTest.getCustomer());
-        Assert.assertEquals(PROJECT_ACTIVATED, projectTest.getActivated());
-        Assert.assertEquals(GROUP_NAME, projectTest.getGroupz().getName());
+        Assert.assertEquals(GROUP_NAME, projectTest.getGroup().getName());
     }
 }

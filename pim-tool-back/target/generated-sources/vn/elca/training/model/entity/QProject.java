@@ -22,7 +22,7 @@ public class QProject extends EntityPathBase<Project> {
 
     public static final QProject project = new QProject("project");
 
-    public final QKey _super = new QKey(this);
+    public final QAbstractEntity _super = new QAbstractEntity(this);
 
     public final StringPath customer = createString("customer");
 
@@ -30,16 +30,10 @@ public class QProject extends EntityPathBase<Project> {
 
     public final DatePath<java.time.LocalDate> endDate = createDate("endDate", java.time.LocalDate.class);
 
-    public final DatePath<java.time.LocalDate> finishingDate = createDate("finishingDate", java.time.LocalDate.class);
-
-    public final QGroupz groupz;
+    public final QGroup group;
 
     //inherited
     public final NumberPath<Long> id = _super.id;
-
-    public final BooleanPath isActivated = createBoolean("isActivated");
-
-    public final DatePath<java.time.LocalDate> lastModifiedDate = createDate("lastModifiedDate", java.time.LocalDate.class);
 
     public final StringPath projectName = createString("projectName");
 
@@ -47,9 +41,7 @@ public class QProject extends EntityPathBase<Project> {
 
     public final DatePath<java.time.LocalDate> startDate = createDate("startDate", java.time.LocalDate.class);
 
-    public final StringPath status = createString("status");
-
-    public final SetPath<Task, QTask> tasks = this.<Task, QTask>createSet("tasks", Task.class, QTask.class, PathInits.DIRECT2);
+    public final EnumPath<vn.elca.training.model.enumerator.ProjectStatuses> status = createEnum("status", vn.elca.training.model.enumerator.ProjectStatuses.class);
 
     //inherited
     public final NumberPath<Long> version = _super.version;
@@ -72,7 +64,7 @@ public class QProject extends EntityPathBase<Project> {
 
     public QProject(Class<? extends Project> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.groupz = inits.isInitialized("groupz") ? new QGroupz(forProperty("groupz"), inits.get("groupz")) : null;
+        this.group = inits.isInitialized("group") ? new QGroup(forProperty("group"), inits.get("group")) : null;
     }
 
 }

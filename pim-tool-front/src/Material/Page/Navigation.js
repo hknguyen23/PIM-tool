@@ -11,38 +11,10 @@ import {
   List,
   ListItem,
 } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
 import SearchProject from './SearchProject/SearchProject';
 import ProjectManagement from './ProjectManagement';
 import ErrorScreen from './ErrorScreen';
 import '../Style/Navigation.css';
-
-const drawerWidth = 350;
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-    margin: '100px'
-  },
-  // necessary for content to be below app bar
-  drawerPaper: {
-    width: drawerWidth,
-    marginTop: '98px'
-  },
-  listItem: {
-    padding: 0,
-    fontFamily: 'Segoe UI',
-  },
-  subItem: {
-    fontSize: '14pt',
-    color: '#666666'
-  },
-  selectedSubItem: {
-    fontSize: '14pt',
-    fontWeight: 500,
-    color: '#333333'
-  }
-}));
 
 const routes = [
   {
@@ -62,37 +34,35 @@ const routes = [
 ];
 
 export default function Navigation() {
-  const classes = useStyles();
-
   const drawer = (
     <div style={{ marginLeft: '150px' }}>
       <List>
-        <ListItem className={classes.listItem} component={NavLink} to="/">
+        <ListItem className="listItem" component={NavLink} to="/">
           <p className="text-semi-bold first-element">
             <Translate content="navigation.title" />
           </p>
         </ListItem>
 
-        <ListItem className={classes.listItem}>
+        <ListItem className="listItem">
           <p className="text-semi-bold">
             <Translate content="navigation.new" />
           </p>
         </ListItem>
 
-        <ListItem className={classes.listItem} component={NavLink} to="/projects/new">
-          <p className={classes.selectedSubItem}>
+        <ListItem className="listItem" component={NavLink} to="/projects/new">
+          <p className="selectedSubItem">
             <Translate content="navigation.project" />
           </p>
         </ListItem>
 
-        <ListItem className={classes.listItem}>
-          <p className={classes.subItem}>
+        <ListItem className="listItem">
+          <p className="subItem">
             <Translate content="navigation.customer" />
           </p>
         </ListItem>
 
-        <ListItem className={classes.listItem}>
-          <p className={classes.subItem}>
+        <ListItem className="listItem">
+          <p className="subItem">
             <Translate content="navigation.supplier" />
           </p>
         </ListItem>
@@ -105,7 +75,7 @@ export default function Navigation() {
       <Router>
         <Drawer
           classes={{
-            paper: classes.drawerPaper,
+            paper: "drawerPaper",
           }}
           variant="permanent"
           open

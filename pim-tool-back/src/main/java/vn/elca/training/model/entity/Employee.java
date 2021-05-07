@@ -2,13 +2,10 @@ package vn.elca.training.model.entity;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
-public class Employee extends Key {
+public class Employee extends AbstractEntity {
     @Column(name = "Visa", length = 3, nullable = false)
     private String visa;
 
@@ -21,8 +18,8 @@ public class Employee extends Key {
     @Column(name = "BirthDate", nullable = false)
     private LocalDate birthDate;
 
-    @OneToOne(mappedBy = "employee", fetch = FetchType.LAZY)
-    private Groupz groupz;
+    @OneToOne(mappedBy = "leader", fetch = FetchType.LAZY)
+    private Group group;
 
     @ManyToMany(mappedBy = "employees", fetch = FetchType.LAZY)
     private Set<Project> projects = new HashSet<>();
@@ -63,11 +60,40 @@ public class Employee extends Key {
         this.birthDate = birthDate;
     }
 
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
+    }
+
     public Set<Project> getProjects() {
         return projects;
     }
 
     public void setProjects(Set<Project> projects) {
         this.projects = projects;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Employee employee = (Employee)o;
+        return id.equals(employee.id) && visa.equals(employee.visa) && firstName.equals(employee.firstName)
+                && lastName.equals(employee.lastName) && birthDate.equals(employee.birthDate)
+                && Objects.equals(group, employee.group) && Objects.equals(projects, employee.projects);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, visa, firstName, lastName, birthDate);
     }
 }

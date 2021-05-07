@@ -4,5 +4,24 @@
   "MIN_DATE": "01/01/1900",
   "MAX_DATE": "01/01/2100",
   "API_URL": "http://localhost:8080",
-  "PAGE_SIZE": 5
+  "PAGE_SIZE": 5,
+  "PROJECT_STATUSES": [
+    {
+      "value": "NEW",
+      "title": "New"
+    },
+    {
+      "value": "PLA",
+      "title": "Planned"
+    },
+    {
+      "value": "INP",
+      "title": "In process"
+    },
+    {
+      "value": "FIN",
+      "title": "Finished"
+    }
+  ],
+  "SUCCESS_STATUS_CODE": 200
 }

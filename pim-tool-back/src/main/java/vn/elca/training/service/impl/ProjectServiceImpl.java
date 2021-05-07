@@ -1,25 +1,23 @@
 package vn.elca.training.service.impl;
 
-import org.apache.tomcat.jni.Local;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.StaleObjectStateException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.elca.training.model.entity.Employee;
-import vn.elca.training.model.entity.Groupz;
+import vn.elca.training.model.entity.Group;
 import vn.elca.training.model.entity.Project;
+import vn.elca.training.model.enumerator.ProjectStatuses;
+import vn.elca.training.model.exception.DeleteProjectException;
 import vn.elca.training.model.exception.ProjectNotFoundException;
-import vn.elca.training.model.exception.ProjectVersionNotMatched;
+import vn.elca.training.model.exception.ProjectNumberAlreadyExistsException;
+import vn.elca.training.model.exception.ProjectVersionNotMatchedException;
 import vn.elca.training.repository.ProjectRepository;
+import vn.elca.training.repository.custom.ProjectRepositoryCustom;
 import vn.elca.training.service.ProjectService;
+import vn.elca.training.util.ApplicationMapper;
 
-import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -29,68 +27,47 @@ import java.util.List;
  */
 @Service
 @Transactional
-@Primary
-@Profile("!dummy | dev")
 public class ProjectServiceImpl implements ProjectService {
-    private final ProjectRepository projectRepository;
+    @Autowired
+    private ProjectRepository projectRepository;
 
     @Autowired
-    public ProjectServiceImpl(ProjectRepository projectRepository) {
-        this.projectRepository = projectRepository;
+    private ProjectRepositoryCustom projectRepositoryCustom;
+
+    @Autowired
+    ApplicationMapper mapper;
+
+    @Override
+    @Transactional
+    public List<Project> findAllByProjectName(String projectName) {
+        return projectRepositoryCustom.findAllByProjectName(projectName);
     }
 
     @Override
-    public List<Project> findAll() {
-        return projectRepository.findAll();
-    }
+    public Page<Project> findAllWithPagination(int offset, int limit, String status, String searchValue) {
+        List<Project> projects;
 
-    @Override
-    public Page<Project> findAllWithPagination(int page, int size, String status, String searchValue) {
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.ASC, "projectNumber");
-        if (!"".equals(status) && !"".equals(searchValue)) {
-            try {
-                return projectRepository.findByStatusAndProjectNumberOrStatusAndProjectNameIsContainingIgnoreCaseOrStatusAndCustomerIsContainingIgnoreCase(
-                        status,
-                        Long.parseLong(searchValue),
-                        status,
-                        searchValue,
-                        status,
-                        searchValue,
-                        pageable
-                );
-            } catch (NumberFormatException ex) {
-                return projectRepository.findByStatusAndProjectNameIsContainingIgnoreCaseOrStatusAndCustomerIsContainingIgnoreCase(
-                        status,
-                        searchValue,
-                        status,
-                        searchValue,
-                        pageable
-                );
-            }
+        try {
+            projects = projectRepositoryCustom.findAllWithCriterion(
+                    status,
+                    Long.parseLong(searchValue),
+                    searchValue,
+                    searchValue,
+                    offset,
+                    limit
+            );
+        } catch (NumberFormatException ex) {
+            projects = projectRepositoryCustom.findAllWithCriterion(
+                    status,
+                    null,
+                    searchValue,
+                    searchValue,
+                    offset,
+                    limit
+            );
         }
 
-        if (!"".equals(status)) {
-            return projectRepository.findByStatus(status, pageable);
-        }
-
-        if (!"".equals(searchValue)) {
-            try {
-                return projectRepository.findByProjectNumberOrProjectNameIsContainingIgnoreCaseOrCustomerIsContainingIgnoreCase(
-                        Long.parseLong(searchValue),
-                        searchValue,
-                        searchValue,
-                        pageable
-                );
-            } catch (NumberFormatException ex) {
-                return projectRepository.findByProjectNameIsContainingIgnoreCaseOrCustomerIsContainingIgnoreCase(
-                        searchValue,
-                        searchValue,
-                        pageable
-                );
-            }
-        }
-
-        return projectRepository.findAll(pageable);
+        return new PageImpl<>(projects);
     }
 
     @Override
@@ -99,106 +76,69 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    public long countByStatus(ProjectStatuses status) {
+        return projectRepository.countByStatus(status);
+    }
+
+    @Override
     public Project findOne(Long id) {
         Project project = projectRepository.findById(id).orElse(null);
         if (project == null) {
-            throw new ProjectNotFoundException("Project not found!!!");
+            throw new ProjectNotFoundException("Project not found with id: " + id);
         }
         return project;
     }
 
     @Override
-    public Project update(Project project, Long version) {
-        Project tobeUpdatedProject = findOne(project.getId());
-        if (tobeUpdatedProject == null) {
-            throw new ProjectNotFoundException("Project not found");
+    public Project findById(Long id) {
+        // with fetch group and employee
+        Project project = projectRepositoryCustom.findById(id);
+        if (project == null) {
+            throw new ProjectNotFoundException("Project not found with id: " + id);
         }
+        return project;
+    }
 
-        if (!version.equals(tobeUpdatedProject.getVersion())) {
-            throw new ProjectVersionNotMatched("Project's version is not matched");
+    @Override
+    public Project update(Project project) {
+        try {
+            Project toBeUpdatedProject = mapper.projectToProject(project); // create a new project from an existing project
+            return projectRepository.save(toBeUpdatedProject);
+        } catch (Exception ex) {
+            throw new ProjectVersionNotMatchedException("Project's version is not matched");
         }
-
-        Long projectNumber = project.getProjectNumber();
-        if (projectNumber != null) {
-            tobeUpdatedProject.setProjectNumber(projectNumber);
-        }
-
-        String name = project.getProjectName();
-        if (name != null) {
-            tobeUpdatedProject.setProjectName(name);
-        }
-
-        String customer = project.getCustomer();
-        if (customer != null) {
-            tobeUpdatedProject.setCustomer(customer);
-        }
-
-        String status = project.getStatus();
-        if (status != null) {
-            tobeUpdatedProject.setStatus(status);
-        }
-
-        LocalDate startDate = project.getStartDate();
-        if (startDate != null) {
-            tobeUpdatedProject.setStartDate(startDate);
-        }
-
-        LocalDate endDate = project.getEndDate();
-        if (endDate != null) {
-            tobeUpdatedProject.setEndDate(endDate);
-        }
-
-        LocalDate lastModifiedDate = project.getLastModifiedDate();
-        if (lastModifiedDate != null) {
-            tobeUpdatedProject.setLastModifiedDate(lastModifiedDate);
-        }
-
-        Groupz groupz = project.getGroupz();
-        if (groupz != null) {
-            tobeUpdatedProject.setGroupz(groupz);
-        }
-
-        tobeUpdatedProject.setEmployees(project.getEmployees());
-
-        LocalDate finishingDate = project.getFinishingDate();
-        if (finishingDate != null) {
-            tobeUpdatedProject.setFinishingDate(finishingDate);
-        }
-
-        Boolean isActivated = project.getActivated();
-        if (isActivated != null) {
-            tobeUpdatedProject.setActivated(isActivated);
-        }
-
-        return projectRepository.save(tobeUpdatedProject);
     }
 
     @Override
     public Project save(Project project) {
+        boolean isExistProjectNumber = projectRepository.existsByProjectNumber(project.getProjectNumber());
+
+        if (isExistProjectNumber) {
+            throw new ProjectNumberAlreadyExistsException("The project number already existed. Please select a different project number");
+        }
+
         return projectRepository.save(project);
     }
 
     @Override
     public void deleteById(Long id) {
-        Project tobeUpdatedProject = findOne(id);
-        if (tobeUpdatedProject == null) {
-            throw new ProjectNotFoundException("Project not found");
+        Project toBeDeletedProject = findOne(id);
+        if (toBeDeletedProject == null) {
+            throw new ProjectNotFoundException("Project not found with id: " + id);
         }
-        projectRepository.deleteById(id);
+
+        if (toBeDeletedProject.getStatus().equals(ProjectStatuses.NEW)) {
+            projectRepository.deleteById(id);
+        } else {
+            throw new DeleteProjectException("Only project with status \"NEW\" can be deleted");
+        }
     }
 
     @Override
-    public Project createMaintenanceProject(Project oldProject) {
-        Project newProject = new Project();
-        StringBuilder sb = new StringBuilder();
-        sb.append(oldProject.getProjectName()).append("Maint.").append(LocalDate.now().getYear());
-        newProject.setProjectName(sb.toString());
-        newProject.setCustomer(oldProject.getCustomer());
-        newProject.setActivated(true);
-        newProject.setFinishingDate(oldProject.getFinishingDate());
-        newProject.setTasks(oldProject.getTasks());
-
-        return projectRepository.save(newProject);
+    public void deleteListIds(List<Long> ids) throws ProjectNotFoundException, DeleteProjectException {
+        for (Long id : ids) {
+            deleteById(id);
+        }
     }
 
     @Override

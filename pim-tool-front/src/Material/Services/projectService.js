@@ -12,8 +12,19 @@ async function createProject(data) {
   }).then(res => res.json());
 }
 
-async function getProjects(data) {
-  console.log(data);
+async function getProject(data) {
+  const { id } = data;
+  return await fetch(`${API_URL}/projects/id/${id}`, {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*'
+    }
+  }).then(res => res.json());
+}
+
+async function getListProjects(data) {
   const { currentPage, pageSize, status, searchValue } = data;
   return await fetch(`${API_URL}/projects/?page=${currentPage}&pageSize=${pageSize}&status=${status}&searchValue=${searchValue}`, {
     method: 'GET',
@@ -49,4 +60,4 @@ async function deleteProject(id) {
   }).then(res => res.json());
 }
 
-export { createProject, getProjects, updateProject, deleteProject }
+export { createProject, getProject, getListProjects, updateProject, deleteProject }

@@ -22,13 +22,13 @@ public class QEmployee extends EntityPathBase<Employee> {
 
     public static final QEmployee employee = new QEmployee("employee");
 
-    public final QKey _super = new QKey(this);
+    public final QAbstractEntity _super = new QAbstractEntity(this);
 
     public final DatePath<java.time.LocalDate> birthDate = createDate("birthDate", java.time.LocalDate.class);
 
     public final StringPath firstName = createString("firstName");
 
-    public final QGroupz groupz;
+    public final QGroup group;
 
     //inherited
     public final NumberPath<Long> id = _super.id;
@@ -60,7 +60,7 @@ public class QEmployee extends EntityPathBase<Employee> {
 
     public QEmployee(Class<? extends Employee> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.groupz = inits.isInitialized("groupz") ? new QGroupz(forProperty("groupz"), inits.get("groupz")) : null;
+        this.group = inits.isInitialized("group") ? new QGroup(forProperty("group"), inits.get("group")) : null;
     }
 
 }

@@ -1,15 +1,15 @@
 package vn.elca.training.service;
 
-import vn.elca.training.model.entity.Groupz;
+import vn.elca.training.model.entity.Group;
 
 import java.util.List;
 
 public interface GroupService {
-    List<Groupz> findAll();
+    List<Group> findAll();
 
     long count();
 
-    Groupz findOne(Long id);
+    Group findOne(Long id);
 
-    Groupz save(Groupz groupz);
+    Group save(Group groupz);
 }

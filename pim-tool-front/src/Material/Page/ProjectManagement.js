@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useHistory, useLocation, useParams } from 'react-router-dom';
 import Translate from 'react-translate-component';
 import {
   Divider,
@@ -18,96 +18,26 @@ import Alert from '@material-ui/lab/Alert';
 import moment from 'moment';
 import MomentUtils from '@date-io/moment';
 import { KeyboardDatePicker as DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
-import { makeStyles } from '@material-ui/core/styles';
-import { DATE_FORMAT_FOR_FRONTEND, DATE_FORMAT_FOR_BACKEND, MIN_DATE, MAX_DATE } from '../Constants/config.json';
-import { fetchGroups } from '../Services/groupService';
-import { fetchEmployees } from '../Services/employeeService';
-import { createProject, updateProject } from '../Services/projectService';
+
+import '../Style/ProjectManagement.css';
+import {
+  DATE_FORMAT_FOR_FRONTEND,
+  DATE_FORMAT_FOR_BACKEND,
+  MIN_DATE,
+  MAX_DATE,
+  PROJECT_STATUSES,
+  SUCCESS_STATUS_CODE
+} from '../Constants/config.json';
+import { fetchGroups } from '../Services/GroupService';
+import { fetchEmployees } from '../Services/EmployeeService';
+import { createProject, updateProject, getProject } from '../Services/ProjectService';
 import codeAndMessage from '../Constants/codeAndMessage';
 
-const useStyles = makeStyles((theme) => ({
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    width: 940
-  },
-  grow: {
-    flexGrow: 1
-  },
-  formItem: {
-    display: 'flex',
-    padding: 19
-  },
-  required: {
-    color: 'red',
-    fontSize: '18pt'
-  },
-  label: {
-    width: 190,
-    fontSize: '14pt',
-    fontFamily: 'Segoe UI',
-    fontWeight: 500,
-    color: '#666666'
-  },
-  formTitle: {
-    fontSize: '18pt',
-    fontFamily: 'Segoe UI',
-    fontWeight: 500,
-    color: '#666666'
-  },
-  shortInputField: {
-    width: 240,
-    height: 40
-  },
-  longInputField: {
-    width: 710,
-    height: 40
-  },
-  datePicker: {
-    border: '1px solid #ccc',
-    padding: 5,
-    borderRadius: 4,
-    width: 240,
-    height: 40
-  },
-  button: {
-    padding: 0,
-    marginLeft: 50,
-    width: 210,
-    height: 35,
-    fontSize: '14pt',
-    borderRadius: 4,
-    lineHeight: 'normal',
-    textTransform: 'none'
-  },
-  helperTextForDatePicker: {
-    display: 'flex',
-    marginLeft: 210,
-    marginTop: -30,
-    paddingRight: 19,
-  },
-  errorLabel: {
-    paddingLeft: 14,
-    paddingTop: 4,
-    width: 240,
-    fontSize: '10pt',
-    fontFamily: 'Segoe UI',
-    color: 'red'
-  }
-}));
-
-const projectStatuses = [
-  { value: 'NEW', title: 'New' },
-  { value: 'PLA', title: 'Planned' },
-  { value: 'INP', title: 'In process' },
-  { value: 'FIN', title: 'Finished' }
-];
-
 export default function ProjectManagement({ mode }) {
-  const classes = useStyles();
   const filter = createFilterOptions();
   const history = useHistory();
   const location = useLocation();
+  const { id } = useParams();
   const delay = ms => new Promise(res => setTimeout(res, ms));
 
   const [groupName, setGroupName] = useState('');
@@ -121,7 +51,7 @@ export default function ProjectManagement({ mode }) {
     customer: '',
     group: null,
     members: [],
-    status: projectStatuses[0],
+    status: PROJECT_STATUSES[0],
     startDate: new Date(),
     endDate: null
   });
@@ -149,8 +79,8 @@ export default function ProjectManagement({ mode }) {
       .then(res => {
         console.log(res);
         setCode(res.code);
-        if (res.code === 200) {
-          setGroups(res.data.data);
+        if (res.code === SUCCESS_STATUS_CODE) {
+          setGroups(res.data.groups);
         } else {
           setGroups([]);
         }
@@ -165,8 +95,8 @@ export default function ProjectManagement({ mode }) {
       .then(res => {
         console.log(res);
         setCode(res.code);
-        if (res.code === 200) {
-          setEmployees(res.data.data);
+        if (res.code === SUCCESS_STATUS_CODE) {
+          setEmployees(res.data.employees);
         } else {
           setEmployees([]);
         }
@@ -178,20 +108,33 @@ export default function ProjectManagement({ mode }) {
 
   useEffect(() => {
     if (mode === "update") {
-      const temp = location.state.currentProject;
-      console.log(temp);
-      setValues({
-        ...values,
-        version: temp.version,
-        projectNumber: temp.projectNumber,
-        projectName: temp.projectName,
-        customer: temp.customer,
-        status: temp.status,
-        group: temp.group,
-        members: temp.employees,
-        startDate: temp.startDate,
-        endDate: temp.endDate
-      });
+      const data = {
+        id: id
+      }
+      getProject(data)
+        .then(res => {
+          if (res.code === SUCCESS_STATUS_CODE) {
+            console.log(res);
+            const project = res.data.project;
+            setValues({
+              id: project.id,
+              version: project.version,
+              projectNumber: project.projectNumber,
+              projectName: project.projectName,
+              customer: project.customer,
+              status: project.status,
+              group: project.group,
+              members: project.employees,
+              startDate: project.startDate,
+              endDate: project.endDate
+            });
+          }
+        })
+        .catch(error => {
+          console.log(error);
+          history.push("/error", { errorMessage: error });
+        });
+
     }
   }, []);
 
@@ -282,7 +225,6 @@ export default function ProjectManagement({ mode }) {
       ...values,
       group: groupName
     });
-    console.log(groupName);
     handleCloseCreateGroupDialog();
   }
 
@@ -350,7 +292,6 @@ export default function ProjectManagement({ mode }) {
     var errorList = Object.entries(tempErrors);
     const hasError = errorList.filter((v) => v[1] !== '').length > 0;
     if (hasError) {
-      console.log(tempErrors);
       setIsHiddenErrorMessage(false);
       window.scrollTo(0, 0);
     } else {
@@ -371,11 +312,15 @@ export default function ProjectManagement({ mode }) {
       let isError = false;
 
       if (mode === "new") {
+        data = {
+          ...data,
+          version: 1
+        }
         createProject(data)
           .then(res => {
             console.log(res);
             setCode(res.code);
-            if (res.code === 200) {
+            if (res.code === SUCCESS_STATUS_CODE) {
               setIsSuccessRequest(true);
             } else {
               if (res.code === 101) {
@@ -389,8 +334,8 @@ export default function ProjectManagement({ mode }) {
             }
           })
           .catch(error => {
-            history.push("/error", { errorMessage: error });
             console.log(error);
+            history.push("/error", { errorMessage: error });
           });
       } else if (mode === "update") {
         data = {
@@ -401,16 +346,17 @@ export default function ProjectManagement({ mode }) {
           .then(res => {
             console.log(res);
             setCode(res.code);
-            if (res.code === 200) {
+            if (res.code === SUCCESS_STATUS_CODE) {
               setIsSuccessRequest(true);
             } else {
               setIsSuccessRequest(false);
+              localStorage.setItem('projectId', location.state.currentProject.id);
               isError = true;
             }
           })
           .catch(error => {
-            history.push("/error", { errorMessage: error });
             console.log(error);
+            history.push("/error", { errorMessage: error });
           });
       }
 
@@ -431,7 +377,7 @@ export default function ProjectManagement({ mode }) {
 
   return (
     <React.Fragment>
-      <p className={classes.formTitle}>
+      <p className="formTitle">
         <Translate content={mode === "new" ? "projectManagement.newProjectTitle" : "projectManagement.updateProjectTitle"} />
       </p>
 
@@ -444,15 +390,15 @@ export default function ProjectManagement({ mode }) {
       <p></p>
 
       <div>
-        <form className={classes.form} noValidate onSubmit={handleSubmitProject}>
-          <div className={classes.formItem}>
-            <p className={classes.label}>
+        <form className="form" noValidate onSubmit={handleSubmitProject}>
+          <div className="formItem">
+            <p className="label">
               <Translate content="projectManagement.form.projectNumber" />
-              <span className={classes.required}> *</span>
+              <span className="required"> *</span>
             </p>
 
             <TextField
-              className={classes.shortInputField}
+              className="shortInputField"
               value={values.projectNumber}
               disabled={mode === "update"}
               autoFocus={mode === "new"}
@@ -469,14 +415,14 @@ export default function ProjectManagement({ mode }) {
             />
           </div>
 
-          <div className={classes.formItem}>
-            <p className={classes.label}>
+          <div className="formItem">
+            <p className="label">
               <Translate content="projectManagement.form.projectName" />
-              <span className={classes.required}> *</span>
+              <span className="required"> *</span>
             </p>
 
             <TextField
-              className={classes.longInputField}
+              className="longInputField"
               value={values.projectName}
               autoFocus={mode === "update"}
               id="project-name"
@@ -491,14 +437,14 @@ export default function ProjectManagement({ mode }) {
             />
           </div>
 
-          <div className={classes.formItem}>
-            <p className={classes.label}>
+          <div className="formItem">
+            <p className="label">
               <Translate content="projectManagement.form.customer" />
-              <span className={classes.required}> *</span>
+              <span className="required"> *</span>
             </p>
 
             <TextField
-              className={classes.longInputField}
+              className="longInputField"
               value={values.customer}
               id="customer"
               name='customer'
@@ -512,15 +458,15 @@ export default function ProjectManagement({ mode }) {
             />
           </div>
 
-          <div className={classes.formItem}>
-            <p className={classes.label}>
+          <div className="formItem">
+            <p className="label">
               <Translate content="projectManagement.form.group.label" />
-              <span className={classes.required}> *</span>
+              <span className="required"> *</span>
             </p>
 
             <Autocomplete
               value={values.group}
-              className={classes.shortInputField}
+              className="shortInputField"
               onChange={(event, newValue) => {
                 if (typeof newValue === 'string') {
                   // timeout to avoid instant validation of the dialog's form.
@@ -589,8 +535,8 @@ export default function ProjectManagement({ mode }) {
             />
           </div>
 
-          <div className={classes.formItem}>
-            <p className={classes.label}>
+          <div className="formItem">
+            <p className="label">
               <Translate content="projectManagement.form.members" />
             </p>
 
@@ -601,7 +547,7 @@ export default function ProjectManagement({ mode }) {
               }}
               filterSelectedOptions
               value={values.members}
-              className={classes.longInputField}
+              className="longInputField"
               id="members"
               name='members'
               size='small'
@@ -624,22 +570,22 @@ export default function ProjectManagement({ mode }) {
             />
           </div>
 
-          <div className={classes.formItem}>
-            <p className={classes.label}>
+          <div className="formItem">
+            <p className="label">
               <Translate content="projectManagement.form.status" />
-              <span className={classes.required}> *</span>
+              <span className="required"> *</span>
             </p>
 
             <Autocomplete
               value={values.status}
-              className={classes.shortInputField}
+              className="shortInputField"
               id="combo-box-project-status"
               size='small'
               onChange={(event, newValue) => setValues({
                 ...values,
                 status: newValue
               })}
-              options={projectStatuses}
+              options={PROJECT_STATUSES}
               getOptionLabel={(option) => option.title}
               getOptionSelected={(option, value) => {
                 return option.value === value.value;
@@ -658,15 +604,15 @@ export default function ProjectManagement({ mode }) {
             />
           </div>
 
-          <div className={classes.formItem}>
-            <p className={classes.label}>
+          <div className="formItem">
+            <p className="label">
               <Translate content="projectManagement.form.startDate" />
-              <span className={classes.required}> *</span>
+              <span className="required"> *</span>
             </p>
 
             <MuiPickersUtilsProvider utils={MomentUtils}>
               <DatePicker
-                className={classes.datePicker}
+                className="datePicker"
                 value={values.startDate}
                 id='start-date'
                 name='startDate'
@@ -716,13 +662,13 @@ export default function ProjectManagement({ mode }) {
               />
             </MuiPickersUtilsProvider>
 
-            <p className={classes.label} style={{ marginLeft: 90, marginRight: -50, paddingTop: 5 }}>
+            <p className="label" style={{ marginLeft: 90, marginRight: -50, paddingTop: 5 }}>
               <Translate content="projectManagement.form.endDate" />
             </p>
 
             <MuiPickersUtilsProvider utils={MomentUtils}>
               <DatePicker
-                className={classes.datePicker}
+                className="datePicker"
                 value={values.endDate}
                 id='end-date'
                 name='endDate'
@@ -773,14 +719,14 @@ export default function ProjectManagement({ mode }) {
             </MuiPickersUtilsProvider>
           </div>
 
-          <div className={classes.helperTextForDatePicker}>
-            <p className={classes.errorLabel}>
+          <div className="helperTextForDatePicker">
+            <p className="errorLabelStartDate">
               {errors.startDate}
             </p>
 
-            <div className={classes.grow} />
+            <div className="grow" />
 
-            <p className={classes.errorLabel}>
+            <p className="errorLabelEndDate">
               {errors.endDate}
             </p>
           </div>
@@ -789,11 +735,11 @@ export default function ProjectManagement({ mode }) {
           <Divider />
           <br />
 
-          <div className={classes.formItem}>
-            <div className={classes.grow} />
+          <div className="formItem">
+            <div className="grow" />
 
             <Button
-              className={classes.button}
+              className="button"
               variant="outlined"
               style={{ backgroundColor: '#b9b9b9' }}
               onClick={handleCancel}
@@ -802,7 +748,7 @@ export default function ProjectManagement({ mode }) {
             </Button>
 
             <Button
-              className={classes.button}
+              className="button"
               type="submit"
               color="primary"
               variant="outlined"
@@ -856,7 +802,7 @@ export default function ProjectManagement({ mode }) {
         <DialogTitle id="alert-dialog-title">
           <Translate content="projectManagement.form.working" />
         </DialogTitle>
-        <DialogContent className={classes.dialogContent}>
+        <DialogContent className="dialogContent">
           <CircularProgress style={{ textAlign: 'center' }} />
         </DialogContent>
       </Dialog>

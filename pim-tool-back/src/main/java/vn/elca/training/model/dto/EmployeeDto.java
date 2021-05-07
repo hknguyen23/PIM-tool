@@ -2,19 +2,10 @@ package vn.elca.training.model.dto;
 
 import java.time.LocalDate;
 
-public class EmployeeDto {
-    private Long id;
+public class EmployeeDto extends AbstractEntityDto {
     private String visa;
     private String fullName;
     private LocalDate birthDate;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getVisa() {
         return visa;

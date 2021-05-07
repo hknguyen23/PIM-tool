@@ -20,7 +20,7 @@ export default function ErrorScreen() {
           </div>
           <div>
             <Typography>
-              {location.state === undefined ? "" : location.state.errorMessage}
+              {location.state === undefined ? "" : location.state.errorMessage.toString()}
             </Typography>
           </div>
           <Typography>

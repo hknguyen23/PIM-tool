@@ -1,7 +1,7 @@
 .logo {
     margin: 10px;
     margin-right: 30px;
-    align-content: center;
+    align-content: center
 }
 
 .name {
@@ -9,15 +9,15 @@
     min-width: 400px;
     font-size: 18pt;
     font-weight: bold;
-    color: #666666;
+    color: #666666
 }
 
 .language {
     margin: 10px;
     min-width: 200px;
     font-size: 14pt;
-    text-align: center;
     display: flex;
+    justify-content: center;
 }
 
 .help {
@@ -26,7 +26,7 @@
     font-size: 14pt;
     font-weight: bold;
     color: #2f85fa;
-    text-align: center;
+    text-align: center
 }
 
 .logging {
@@ -35,5 +35,23 @@
     font-size: 14pt;
     font-weight: bold;
     color: #666666;
-    text-align: center;
+    text-align: center
+}
+
+.grow {
+    flex-grow: 1
+}
+
+.MuiAppBar-root.header {
+    background-color: white;
+    padding: 10px 100px 10px 100px
+}
+
+.MuiButton-root.button {
+    padding: 0;
+    border-radius: 8px;
+    max-width: 160px;
+    line-height: normal;
+    font-weight: normal;
+    text-transform: none
 }
